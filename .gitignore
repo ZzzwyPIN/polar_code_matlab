@@ -1,0 +1,8 @@
+# windows:
+*.png
+*.PNG
+*.jpg
+
+# matlab:
+*.asv
+*.mat
