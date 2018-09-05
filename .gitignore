@@ -2,6 +2,8 @@
 *.png
 *.PNG
 *.jpg
+*.pptx
+*.pdf
 
 # matlab:
 *.asv
