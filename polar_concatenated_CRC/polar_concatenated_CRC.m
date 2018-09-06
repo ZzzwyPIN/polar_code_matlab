@@ -47,6 +47,8 @@ for i = 1:length(SNR)
     BerNum1 = 0;
     PerNum2 = 0;
     BerNum2 = 0;
+    PerNumSC = 0;
+    BerNumSC = 0;
     for iter = 1:block_num
         fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
         source_bit1 = randi([0 1],1,K-Ng);
@@ -65,6 +67,13 @@ for i = 1:length(SNR)
         receive_sample1 = encode_temp1 + sigma * randn(size(encode_temp1));
         receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2));
         receive_bits1 = polarSC_decoder(n,receive_sample1,snr(i),Frozen_index,frozen_bits,Info_index);
+        
+        count_SC = sum(receive_bits1 ~= source_crc_bit1);
+        if count_SC ~= 0
+            PerNumSC = PerNumSC + 1;
+            BerNumSC = BerNumSC + count_SC;
+        end
+        
         receive_bits2 = polarSC_decoder(n,receive_sample2,snr(i),Frozen_index,frozen_bits,Info_index);
         receive_crc_bits1 = crccheck(receive_bits1,poly);
         receive_crc_bits2 = crccheck(receive_bits2,poly);
@@ -125,6 +134,8 @@ for i = 1:length(SNR)
     per2(i) = PerNum2/block_num;
     ber1(i) = BerNum1/(K*block_num);
     ber2(i) = BerNum2/(K*block_num);
+    perSC(i) = PerNumSC/block_num;
+    berSC(i) = BerNumSC/(K*block_num);
 end
 fprintf('\nNow disp the Ber and Per');
 fprintf('\nPer\t\tBer\t\tPer1\tBer1\tPer2\tBer2\tEbN0');
