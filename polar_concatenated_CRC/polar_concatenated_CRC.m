@@ -39,6 +39,7 @@ G = encoding_matrix(n);
 Gi = G(Info_index,:);
 Gf = G(Frozen_index,:);
 frozen_bits = zeros(1,k_f);
+rng('shuffle')
 for i = 1:length(SNR)
     sigma = (1/snr(i))^0.5;
     % set PER and BER counter
@@ -115,7 +116,7 @@ for i = 1:length(SNR)
         end
         
         count2 = sum(receive_bits2 ~= source_crc_bit2);
-        if count1 ~= 0
+        if count2 ~= 0
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end
