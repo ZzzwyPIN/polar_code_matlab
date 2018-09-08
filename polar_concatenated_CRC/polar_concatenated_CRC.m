@@ -49,6 +49,8 @@ for i = 1:length(SNR)
     BerNum2 = 0;
     PerNumSC = 0;
     BerNumSC = 0;
+    PerNumBP = 0;
+    BerNumBP = 0;
     for iter = 1:block_num
         fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
         source_bit1 = randi([0 1],1,K-Ng);
@@ -66,8 +68,9 @@ for i = 1:length(SNR)
         % add noise
         receive_sample1 = encode_temp1 + sigma * randn(size(encode_temp1));
         receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2));
-        receive_bits1 = polarSC_decoder(n,receive_sample1,snr(i),Frozen_index,frozen_bits,Info_index);
         
+        % Compare 1 : Polar SC decoder performance
+        receive_bits1 = polarSC_decoder(n,receive_sample1,snr(i),Frozen_index,frozen_bits,Info_index);
         count_SC = sum(receive_bits1 ~= source_crc_bit1);
         if count_SC ~= 0
             PerNumSC = PerNumSC + 1;
@@ -75,6 +78,20 @@ for i = 1:length(SNR)
         end
         
         receive_bits2 = polarSC_decoder(n,receive_sample2,snr(i),Frozen_index,frozen_bits,Info_index);
+        
+        % Compare 2 : Polar BP decoder performance
+         % get init LLR
+        lr_x = -2*receive_sample1./(sigma^2);
+        % decoding follow
+        lr_u = zeros(1,N); % save send sample LR in each iteration
+        lr_u(reverse_index(n,Frozen_index)) = init_max;
+        receive_bits_bp = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index);
+        countBP = sum(receive_bits_bp ~= source_crc_bit1);
+        if countBP ~= 0
+            PerNumBP = PerNumBP + 1;
+            BerNumBP = BerNumBP + countBP;
+        end
+        
         receive_crc_bits1 = crccheck(receive_bits1,poly);
         receive_crc_bits2 = crccheck(receive_bits2,poly);
         % crc Check Result£ºIf only one polar is uncorrect,then using BP
@@ -123,7 +140,6 @@ for i = 1:length(SNR)
             PerNum1 = PerNum1 + 1;
             BerNum1 = BerNum1 + count1;
         end
-        
         count2 = sum(receive_bits2 ~= source_crc_bit2);
         if count2 ~= 0
             PerNum2 = PerNum2 + 1;
@@ -136,6 +152,8 @@ for i = 1:length(SNR)
     ber2(i) = BerNum2/(K*block_num);
     perSC(i) = PerNumSC/block_num;
     berSC(i) = BerNumSC/(K*block_num);
+    perBP(i) = PerNumBP/block_num;
+    berBP(i) = BerNumBP/(K*block_num);
 end
 fprintf('\nNow disp the Ber and Per');
 fprintf('\nPer\t\tBer\t\tPer1\tBer1\tPer2\tBer2\tEbN0');
@@ -145,7 +163,9 @@ for i = 1:length(SNR)
     fprintf('\n%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%d',per(i),ber(i),per1(i),ber1(i),per2(i),ber2(i),SNR(i));
 end
 semilogy(SNR,per1,'b-*',SNR,ber1,'b-+',SNR,per2,'k-*',SNR,ber2,'k-+',SNR,per,'r-*',SNR,ber,'r-+');
+hold on
+semilogy(SNR,perSC,'g-*',SNR,berSC,'g-+',SNR,perBP,'k-^',SNR,berBP,'k-o');
 xlabel('SNR in dB');
 ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');
-legend('PER1','BER1','PER2','BER2','PER','BER');
+legend('PER1','BER1','PER2','BER2','PER','BER','perSC','berSC','perBP','berBP');
