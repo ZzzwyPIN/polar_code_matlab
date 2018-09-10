@@ -3,9 +3,9 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.2188;    % 码率
+R = .5;    % 码率
 
-SNR = -3:2;
+SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 30;
