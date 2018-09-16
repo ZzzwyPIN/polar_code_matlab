@@ -8,11 +8,7 @@ R = 0.5;    % 码率
 SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
-<<<<<<< HEAD
 max_iter = 40;
-=======
-max_iter = 30;
->>>>>>> 49065cad14f2d75d62e7e1b1f58b32cd5a99e729
 block_num = 10000;
 
 % 参数计算
@@ -55,7 +51,7 @@ for i = 1:length(SNR)
         % add noise
         receive_sample = encode_temp + sigma * randn(size(encode_temp));
         % SC decoder
-        receive_bits_SC = polarSC_decoder(n,receive_sample,sigma,Frozen_index,frozen_bits,Info_index);
+        [receive_bits_SC,~] = polarSC_decoder(n,receive_sample,sigma,Frozen_index,frozen_bits,Info_index);
         
         % BP decoder
         lr_x = -2*receive_sample./(sigma^2);
@@ -83,11 +79,7 @@ for i = 1:length(SNR)
     perBP(i) = PerNumBP/block_num;
     berBP(i) = BerNumBP/(K*block_num);
 end
-<<<<<<< HEAD
 semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berBP,'b-*');
-=======
-semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berBP,'b-*')
->>>>>>> 49065cad14f2d75d62e7e1b1f58b32cd5a99e729
 xlabel('SNR in dB');
 ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');

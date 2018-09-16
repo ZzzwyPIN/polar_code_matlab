@@ -1,5 +1,5 @@
 function rel_mat_RtoL = polar_bp_RtoL(lr_u, lr_x, rel_mat_LtoR, n)
-%%% this function decode the polar code with BP 
+%%% this function decode the polar code with BP
 %   Frozen_index: the index of frozen bits
 %   lr_u: the LR of send sample
 %   n: bit order
