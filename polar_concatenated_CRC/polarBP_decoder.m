@@ -12,6 +12,6 @@ for idx = 1:max_iter
     % Note that intrinsic information can't send to right again!
     rel_mat_LtoR = polar_bp_LtoR(lr_x, lr_u, rel_mat_RtoL, n);
 end
-temp = rel_mat_RtoL(:,n);
+temp = rel_mat_RtoL(:,n) + lr_u';
 final_lr = temp(reverse_index(n,1:length(temp)));
 receive_bp_bits = (final_lr(Info_index) < 0)';

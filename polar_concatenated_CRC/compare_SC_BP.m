@@ -2,17 +2,18 @@ clc
 clear
 
 % 基本参数设置
-n = 8;  % 比特位数
+n = 9;  % 比特位数
 R = 0.5;    % 码率
 
 SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
-max_iter = 30;
-block_num = 10;
+max_iter = 40;
+block_num = 10000;
 
 % 参数计算
 snr = 10.^(SNR/10);
+esn0 = snr * R;
 init_max = init_lr_max * n;
 if init_max > 30
     init_max = 30;
@@ -22,7 +23,7 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
+load('Pe_N512_snr3.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 Info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 Frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
@@ -34,7 +35,7 @@ Gf = G(Frozen_index,:);
 frozen_bits = zeros(1,k_f);
 rng('shuffle')
 for i = 1:length(SNR)
-    sigma = (1/snr(i))^0.5;
+    sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNumSC = 0;
     BerNumSC = 0;
@@ -50,7 +51,7 @@ for i = 1:length(SNR)
         % add noise
         receive_sample = encode_temp + sigma * randn(size(encode_temp));
         % SC decoder
-        receive_bits_SC = polarSC_decoder(n,receive_sample,snr(i),Frozen_index,frozen_bits,Info_index);
+        receive_bits_SC = polarSC_decoder(n,receive_sample,sigma,Frozen_index,frozen_bits,Info_index);
         
         % BP decoder
         lr_x = -2*receive_sample./(sigma^2);
@@ -68,7 +69,7 @@ for i = 1:length(SNR)
         end 
         
         countBP = sum(receive_bits_BP ~= source_bit);
-        if countSC ~= 0
+        if countBP ~= 0
             PerNumBP = PerNumBP + 1;
             BerNumBP = BerNumBP + countBP;
         end
@@ -78,8 +79,8 @@ for i = 1:length(SNR)
     perBP(i) = PerNumBP/block_num;
     berBP(i) = BerNumBP/(K*block_num);
 end
-semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berSC,'b-*')
+semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berBP,'b-*');
 xlabel('SNR in dB');
 ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');
-legend('perSC','berSC','perBP','berSC');
+legend('perSC','berSC','perBP','berBP');
