@@ -3,8 +3,18 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
+<<<<<<< HEAD:polar_concatenated_CRC/polar_SC_256N.m
 R = 0.5;    % 码率
 SNR = 1:0.5:3;
+=======
+<<<<<<< HEAD
+R = 0.5;    % 码率
+SNR = -1:4;
+=======
+R = 0.2188;    % 码率
+SNR = -3:2;
+>>>>>>> bfe068ca293afe9ca8ef278f563e447513a91e26
+>>>>>>> 49065cad14f2d75d62e7e1b1f58b32cd5a99e729:polar_concatenated_CRC/polar_compare_SC.m
 block_num = 10000;
 
 % 参数计算
