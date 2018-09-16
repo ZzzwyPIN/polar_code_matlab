@@ -1,4 +1,4 @@
-function GN = encoding_matrix2(n)
+function GN = encoding_matrix1(n)
 
     % block length of the polar code
     N = 2^n;    

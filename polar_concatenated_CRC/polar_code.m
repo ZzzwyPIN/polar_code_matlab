@@ -55,7 +55,7 @@ for i=1:length(SNR)
     [Ps,I] = sort(P);
     coding_idx = I(1:K);
     frozen_idx = I(K+1:end);
-   coding_idx= sort(coding_idx);
+    coding_idx= sort(coding_idx);
     frozen_idx = sort(frozen_idx);
     
     % (5) form the encoding matrix for information bits
