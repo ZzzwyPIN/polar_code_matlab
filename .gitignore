@@ -4,6 +4,7 @@
 *.jpg
 *.pptx
 *.pdf
+*.txt
 
 # matlab:
 *.asv
