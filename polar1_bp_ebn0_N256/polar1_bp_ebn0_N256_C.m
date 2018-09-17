@@ -4,9 +4,9 @@ clc; clear;
 
 % diary on
 % TOP_SCALE = 0;
-n = 8;
+n = 9;
 N = 2^n;
-R = 0.36; 
+R = 0.5; 
 block_num = 10000;
 SNR=0;
 snr=10.^(SNR/10);
@@ -26,8 +26,7 @@ G= encoding_matrix(n);              %产生G矩阵   F@(i)F     (1;n+1;2;n+2;3;n+3;.
 frozen_bits=randi([0,1],1,N-k);
 encoded_bits=zeros(1,N);%极化码编码矩阵
 received_bits=zeros(1,N);
-% load('Pe_snr1p0db_R0p25_n_322048n_5.mat');
-load('Pe_snr0p0db_2048_n_8.mat');
+load('Pe_N512_snr3.mat');
 Ptmp = sort(P); 
 % (2) find cut-off Z value below which the rows of G will be used for encoding
 cut_p = Ptmp(k); %Ztmp(4)

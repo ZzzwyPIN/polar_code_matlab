@@ -33,6 +33,3 @@ for j = 1:n
         lr_x = rel_mat_RtoL(:,j);
     end
 end
-
-
-
