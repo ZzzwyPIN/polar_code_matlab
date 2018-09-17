@@ -3,16 +3,8 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-<<<<<<< HEAD:polar_concatenated_CRC/polar_BP_256N.m
-R = 0.36;    % 码率
-
-SNR = [0 2];
-=======
 R = .5;    % 码率
-
 SNR = -1:5;
->>>>>>> 49065cad14f2d75d62e7e1b1f58b32cd5a99e729:polar_concatenated_CRC/polar_compare_BP.m
-
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 block_num = 10000;

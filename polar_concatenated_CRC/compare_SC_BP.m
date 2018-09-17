@@ -32,7 +32,7 @@ Frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
 G = encoding_matrix(n);
 Gi = G(Info_index,:);
 Gf = G(Frozen_index,:);
-frozen_bits = zeros(1,k_f);
+frozen_bits = randi([0 1],1,k_f);
 rng('shuffle')
 for i = 1:length(SNR)
     sigma = (2*esn0(i))^(-0.5);
@@ -57,7 +57,10 @@ for i = 1:length(SNR)
         lr_x = -2*receive_sample./(sigma^2);
         % decoding follow
         lr_u = zeros(1,N); % save send sample LR in each iteration
-        lr_u(reverse_index(n,Frozen_index)) = init_max;
+        frozen_index_0 = find(frozen_bits == 0);
+        frozen_index_1 = find(frozen_bits == 1);
+        lr_u(reverse_index(n,Frozen_index(frozen_index_0))) = init_max;
+        lr_u(reverse_index(n,Frozen_index(frozen_index_1))) = -init_max;
         
         receive_bits_BP = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index);
         
