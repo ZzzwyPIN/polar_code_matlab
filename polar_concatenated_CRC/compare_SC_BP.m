@@ -2,14 +2,14 @@ clc
 clear
 
 % 基本参数设置
-n = 9;  % 比特位数
+n = 8;  % 比特位数
 R = 0.5;    % 码率
 
 SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
-block_num = 10000;
+block_num = 1000;
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -23,7 +23,7 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_N512_snr3.mat');   % load the channel information
+load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 Info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 Frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道

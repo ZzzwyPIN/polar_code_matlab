@@ -7,7 +7,7 @@ R = 1/4;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = -3:1;
+SNR = -2:4;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 30;
@@ -29,17 +29,17 @@ k_f = N-K;% frozen_bits length
 % get information bits and concatenated bits
 load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
-Info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
-Frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
+info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
+frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
 bad_info_index = sort(I(K:-1:K-k+1)); % 级联解码信息位
 % best_info_index = sort(I(k:-1:1));
 
 % get generate matrix
 G = encoding_matrix(n);
-Gi = G(Info_index,:);
-Gf = G(Frozen_index,:);
-frozen_bits = zeros(1,k_f);
-rng('shuffle')
+Gi = G(info_index,:);
+Gf = G(frozen_index,:);
+frozen_bits = randi([0 1],1,k_f);
+rng('shuffle');
 for i = 1:length(SNR)
     sigma = (1/snr(i))^0.5;
     % set PER and BER counter
@@ -57,7 +57,7 @@ for i = 1:length(SNR)
         source_bit2 = randi([0 1],1,K-k-Ng);
         source_crc_bit1 = crcadd(source_bit1,poly);
         encode_temp1 = rem(source_crc_bit1*Gi + frozen_bits*Gf,2);
-        [~,temp_index] = ismember(bad_info_index,Info_index);
+        [~,temp_index] = ismember(bad_info_index,info_index);
         source_bit2 = insert_bit(source_crc_bit1,source_bit2,temp_index,temp_index);
         source_crc_bit2 = crcadd(source_bit2,poly);
         encode_temp2 = rem(source_crc_bit2*Gi + frozen_bits*Gf,2);
@@ -69,31 +69,13 @@ for i = 1:length(SNR)
         receive_sample1 = encode_temp1 + sigma * randn(size(encode_temp1));
         receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2));
         
-        % Compare 1 : Polar SC decoder performance
-        receive_bits1 = polarSC_decoder(n,receive_sample1,snr(i),Frozen_index,frozen_bits,Info_index);
-        count_SC = sum(receive_bits1 ~= source_crc_bit1);
-        if count_SC ~= 0
-            PerNumSC = PerNumSC + 1;
-            BerNumSC = BerNumSC + count_SC;
-        end
+        % SC decoder follow
+        decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
+        decision_bits2 = polarSC_decoder(n,receive_sample2,sigma,frozen_index,frozen_bits,info_index);
         
-        receive_bits2 = polarSC_decoder(n,receive_sample2,snr(i),Frozen_index,frozen_bits,Info_index);
-        
-        % Compare 2 : Polar BP decoder performance
-         % get init LLR
-        lr_x = -2*receive_sample1./(sigma^2);
-        % decoding follow
-        lr_u = zeros(1,N); % save send sample LR in each iteration
-        lr_u(reverse_index(n,Frozen_index)) = init_max;
-        receive_bits_bp = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index);
-        countBP = sum(receive_bits_bp ~= source_crc_bit1);
-        if countBP ~= 0
-            PerNumBP = PerNumBP + 1;
-            BerNumBP = BerNumBP + countBP;
-        end
-        
-        receive_crc_bits1 = crccheck(receive_bits1,poly);
-        receive_crc_bits2 = crccheck(receive_bits2,poly);
+        % CRC check follow
+        receive_crc_bits1 = crccheck(decision_bits1,poly);
+        receive_crc_bits2 = crccheck(decision_bits2,poly);
         % crc Check Result：If only one polar is uncorrect,then using BP
         % decoder with some concatenated bits extrasinc information.
         
@@ -103,15 +85,18 @@ for i = 1:length(SNR)
             lr_x = -2*receive_sample1./(sigma^2);
             % decoding follow
             lr_u = zeros(1,N); % save send sample LR in each iteration
-            lr_u(reverse_index(n,Frozen_index)) = init_max;
+            frozen_index_0 = frozen_bits == 0;
+            frozen_index_1 = frozen_bits == 1;
+            lr_u(reverse_index(n,frozen_index(frozen_index_0))) = init_max;
+            lr_u(reverse_index(n,frozen_index(frozen_index_1))) = -init_max;
             for m = 1:length(temp_index)
-                if receive_bits2(temp_index(m)) == 0
-                    lr_u(reverse_index(n,Info_index(temp_index(m)))) = init_max;
+                if decision_bits2(temp_index(m)) == 0
+                    lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
                 else
-                    lr_u(reverse_index(n,Info_index(temp_index(m)))) = 0;
+                    lr_u(reverse_index(n,info_index(temp_index(m)))) = -init_max;
                 end
             end
-            receive_bits1 = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index);
+            decision_bits1 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
         end
         
         % situation 2: polar1 right, polr2 wrong;
@@ -120,27 +105,30 @@ for i = 1:length(SNR)
             lr_x = -2*receive_sample2./(sigma^2);
             % decoding follow
             lr_u = zeros(1,N); % save send sample LR in each iteration
-            lr_u(reverse_index(n,Frozen_index)) = init_max;
+            frozen_index_0 = frozen_bits == 0;
+            frozen_index_1 = frozen_bits == 1;
+            lr_u(reverse_index(n,frozen_index(frozen_index_0))) = init_max;
+            lr_u(reverse_index(n,frozen_index(frozen_index_1))) = -init_max;
             for m = 1:length(temp_index)
-                if receive_bits1(temp_index(m)) == 0
-                    lr_u(reverse_index(n,Info_index(temp_index(m)))) = init_max;
+                if decision_bits1(temp_index(m)) == 0
+                    lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
                 else
-                    lr_u(reverse_index(n,Info_index(temp_index(m)))) = 0;
+                    lr_u(reverse_index(n,info_index(temp_index(m)))) = -init_max;
                 end
             end
-            receive_bits2 = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index);
+            decision_bits2 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
         end
         
         % situation 3 and 4: polar1 and polar2 are both right or wrong
         % we have no salution.
         
         % calculate BER and PER
-        count1 = sum(receive_bits1 ~= source_crc_bit1);
+        count1 = sum(decision_bits1 ~= source_crc_bit1);
         if count1 ~= 0
             PerNum1 = PerNum1 + 1;
             BerNum1 = BerNum1 + count1;
         end
-        count2 = sum(receive_bits2 ~= source_crc_bit2);
+        count2 = sum(decision_bits2 ~= source_crc_bit2);
         if count2 ~= 0
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
