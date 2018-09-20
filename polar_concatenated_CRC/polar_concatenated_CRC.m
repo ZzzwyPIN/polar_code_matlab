@@ -3,11 +3,11 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 1/4;    % 码率
+R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = -2:4;
+SNR = -2:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 30;
@@ -15,13 +15,14 @@ block_num = 10000;
 
 % 参数计算
 snr = 10.^(SNR/10);
+esn0 = snr * R;
 init_max = init_lr_max * n;
 if init_max > 30
     init_max = 30;
 end
 N = 2^n;
 K = N*R;  % information bit length
-k = N*R*R;  % Cascaded decoding length
+k = N*R*R*R;  % Cascaded decoding length
 k_f = N-K;% frozen_bits length
 % source_block = 2*k-k1;
 % frozen_block = 2*k_f;
@@ -41,16 +42,12 @@ Gf = G(frozen_index,:);
 frozen_bits = randi([0 1],1,k_f);
 rng('shuffle');
 for i = 1:length(SNR)
-    sigma = (1/snr(i))^0.5;
+    sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNum1 = 0;
     BerNum1 = 0;
     PerNum2 = 0;
     BerNum2 = 0;
-    PerNumSC = 0;
-    BerNumSC = 0;
-    PerNumBP = 0;
-    BerNumBP = 0;
     for iter = 1:block_num
         fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
         source_bit1 = randi([0 1],1,K-Ng);
@@ -138,16 +135,12 @@ for i = 1:length(SNR)
     per2(i) = PerNum2/block_num;
     ber1(i) = BerNum1/(K*block_num);
     ber2(i) = BerNum2/(K*block_num);
-    perSC(i) = PerNumSC/block_num;
-    berSC(i) = BerNumSC/(K*block_num);
-    perBP(i) = PerNumBP/block_num;
-    berBP(i) = BerNumBP/(K*block_num);
+    per(i) = (per1(i)+per2(i))/2;
+    ber(i) = (BerNum1+BerNum2)/(2*K-k)/block_num;
 end
 fprintf('\nNow disp the Ber and Per');
 fprintf('\nPer\t\tBer\t\tPer1\tBer1\tPer2\tBer2\tEbN0');
 for i = 1:length(SNR)
-    per(i) = (per1(i)+per2(i))/2;
-    ber(i) = (ber1(i)+ber2(i))/2;
     fprintf('\n%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%d',per(i),ber(i),per1(i),ber1(i),per2(i),ber2(i),SNR(i));
 end
 semilogy(SNR,per1,'b-*',SNR,ber1,'b-+',SNR,per2,'k-*',SNR,ber2,'k-+',SNR,per,'r-*',SNR,ber,'r-+');

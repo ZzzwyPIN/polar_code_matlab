@@ -3,13 +3,13 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.5;    % 码率
+R = 0.44;    % 码率
 
 SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
-block_num = 1000;
+block_num = 10000;
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -82,8 +82,8 @@ for i = 1:length(SNR)
     perBP(i) = PerNumBP/block_num;
     berBP(i) = BerNumBP/(K*block_num);
 end
-semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berBP,'b-*');
-xlabel('SNR in dB');
-ylabel('BER and PER in dB');
-title('Cascaded Polar Decoding');
-legend('perSC','berSC','perBP','berBP');
+% semilogy(SNR,perSC,'k-+',SNR,berSC,'k-*',SNR,perBP,'b-+',SNR,berBP,'b-*');
+% xlabel('SNR in dB');
+% ylabel('BER and PER in dB');
+% title('Cascaded Polar Decoding');
+% legend('perSC','berSC','perBP','berBP');
