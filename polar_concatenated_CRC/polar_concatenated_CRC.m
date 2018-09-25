@@ -7,10 +7,10 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = -2:5;
+SNR = -1:5;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
-max_iter = 30;
+max_iter = 40;
 block_num = 10000;
 
 % 参数计算
@@ -22,7 +22,7 @@ if init_max > 30
 end
 N = 2^n;
 K = N*R;  % information bit length
-k = N*R*R*R;  % Cascaded decoding length
+k = N*R*0.25;  % Cascaded decoding length
 k_f = N-K;% frozen_bits length
 % source_block = 2*k-k1;
 % frozen_block = 2*k_f;
@@ -144,9 +144,7 @@ for i = 1:length(SNR)
     fprintf('\n%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%d',per(i),ber(i),per1(i),ber1(i),per2(i),ber2(i),SNR(i));
 end
 semilogy(SNR,per1,'b-*',SNR,ber1,'b-+',SNR,per2,'k-*',SNR,ber2,'k-+',SNR,per,'r-*',SNR,ber,'r-+');
-hold on
-semilogy(SNR,perSC,'g-*',SNR,berSC,'g-+',SNR,perBP,'k-^',SNR,berBP,'k-o');
 xlabel('SNR in dB');
 ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');
-legend('PER1','BER1','PER2','BER2','PER','BER','perSC','berSC','perBP','berBP');
+legend('PER1','BER1','PER2','BER2','PER','BER');
