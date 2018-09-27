@@ -12,7 +12,7 @@ for ii=0:1:n
             mem_lr(2^ii*(j-1)+1,n+1-ii) = (mem_lr(2^ii*(j-1)+1,n-ii+2) * mem_lr(2^ii*(j-1)+1+2^(ii-1),n-ii+2) + 1) / ...
                 (mem_lr(2^ii*(j-1)+1,n-ii+2) + mem_lr(2^ii*(j-1)+2^(ii-1)+1,n-ii+2));
             % LL, Sep 23, 2016
-             mem_lr(2^ii*(j-1)+1,n+1-ii)  = lr_limit(mem_lr(2^ii*(j-1)+1,n+1-ii), mem_lr(2^ii*(j-1)+1,n-ii+2), mem_lr(2^ii*(j-1)+1+2^(ii-1),n-ii+2), 0);
+            mem_lr(2^ii*(j-1)+1,n+1-ii)  = lr_limit(mem_lr(2^ii*(j-1)+1,n+1-ii), mem_lr(2^ii*(j-1)+1,n-ii+2), mem_lr(2^ii*(j-1)+1+2^(ii-1),n-ii+2), 0);
         end
     end
 end

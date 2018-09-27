@@ -148,3 +148,9 @@ xlabel('SNR in dB');
 ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');
 legend('PER1','BER1','PER2','BER2','PER','BER');
+
+% semilogy(SNR,per,'r-*',SNR,ber,'r-+',SNR,perBP,'b-*',SNR,berBP,'b-+',SNR,perSC,'k-*',SNR,berSC,'k-+');
+% xlabel('SNR in dB');
+% ylabel('BER and PER in dB');
+% title('Cascaded Polar Decoding');
+% legend('per','ber','perBP','berBP','perSC','berSC');

@@ -3,7 +3,7 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 1/4;    % 码率
+R = 0.25;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
@@ -26,6 +26,7 @@ load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
+bad_info_index = sort(I(K:-1:K-k+1));
 % get generate matrix
 G = encoding_matrix(n);
 Gi = G(info_index,:);
@@ -45,7 +46,7 @@ for i = 1:length(SNR)
         source_bit2 = randi([0 1],1,K-k-Ng);
         source_crc_bit1 = crcadd(source_bit1,poly);
         encode_temp1 = rem(source_crc_bit1*Gi + frozen_bits*Gf,2);
-        temp_index = 1:k;   % 级联信息位的index
+        [~,temp_index] = ismember(bad_info_index,info_index);
         source_bit2 = insert_bit(source_crc_bit1,source_bit2,temp_index,temp_index);
         source_crc_bit2 = crcadd(source_bit2,poly);
         encode_temp2 = rem(source_crc_bit2*Gi + frozen_bits*Gf,2);
@@ -60,6 +61,11 @@ for i = 1:length(SNR)
         decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
         decision_bits2 = polarSC_decoder(n,receive_sample2,sigma,frozen_index,frozen_bits,info_index);
         
+%         index1 = find(decision_bits1 ~= source_crc_bit1);
+%         index2 = find(decision_bits2 ~= source_crc_bit2);
+%         count1 = sum(decision_bits1 ~= source_crc_bit1);
+%         count2 = sum(decision_bits2 ~= source_crc_bit2);
+        
         receive_crc_bits1 = crccheck(decision_bits1,poly);
         receive_crc_bits2 = crccheck(decision_bits2,poly);
         % crc Check Result：If only one polar is uncorrect,then using BP
@@ -68,16 +74,19 @@ for i = 1:length(SNR)
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             % modify polar1 frozen_index frozen_bits info_index
-            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,k,decision_bits2);
+            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits2);
             decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
         end
         
         % situation 2: polar1 right, polr2 wrong;
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
-            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,k,decision_bits1);
+            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits1);
             decision_bits2 = polarSC_decoder(n,receive_sample2,sigma,frozen_index,frozen_bits,info_index);
         end
         
+        
+%         index1 = find(decision_bits1 ~= source_crc_bit1);
+%         index2 = find(decision_bits2 ~= source_crc_bit2);
         % initialize frozen_index and frozen_bits;
         frozen_index = frozen_index(1:k_f);
         frozen_bits = frozen_bits(1:k_f);
