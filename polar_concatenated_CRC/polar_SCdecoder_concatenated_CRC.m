@@ -3,7 +3,7 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.25;    % 码率
+R = 0.75;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
@@ -26,7 +26,7 @@ load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
-bad_info_index = sort(I(K:-1:K-k+1));
+% bad_info_index = sort(I(K:-1:K-k+1));
 % get generate matrix
 G = encoding_matrix(n);
 Gi = G(info_index,:);
@@ -46,7 +46,8 @@ for i = 1:length(SNR)
         source_bit2 = randi([0 1],1,K-k-Ng);
         source_crc_bit1 = crcadd(source_bit1,poly);
         encode_temp1 = rem(source_crc_bit1*Gi + frozen_bits*Gf,2);
-        [~,temp_index] = ismember(bad_info_index,info_index);
+        temp_index = 1:k;
+%         [~,temp_index] = ismember(bad_info_index,info_index);
         source_bit2 = insert_bit(source_crc_bit1,source_bit2,temp_index,temp_index);
         source_crc_bit2 = crcadd(source_bit2,poly);
         encode_temp2 = rem(source_crc_bit2*Gi + frozen_bits*Gf,2);
