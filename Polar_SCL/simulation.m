@@ -24,6 +24,7 @@ info_bits = sort(channel_ordered(1 : K), 'ascend');
 frozen_bits = ones(N , 1);
 frozen_bits(info_bits) = 0;
 info_bits_logical = logical(mod(frozen_bits + 1, 2));
+G = encoding_matrix(log2(N));
 
 
 %beta expansion
@@ -54,6 +55,8 @@ for i_run = 1 : max_runs
         disp(['List size = ' num2str(list_size_vec)]);
         disp('Current accurate block error performance');
         disp(num2str([ebno_vec'  bler./num_runs]));
+        disp('Current accurate bit error performance');
+        disp(num2str([ebno_vec'  ber./num_runs/K]));
         disp(' ')
     end
     %To avoid redundancy
@@ -61,7 +64,7 @@ for i_run = 1 : max_runs
     info_with_crc = generate(gen, info);
     u = zeros(N, 1);
     u(info_bits_logical) = info_with_crc;
-    x = my_polar_encode(u, lambda_offset, llr_layer_vec);
+    x = rem((u' * G),2)';
     bpsk = 1 - 2 * x;
     noise = randn(N, 1);
     prev_decoded = zeros(length(ebno_vec), length(list_size_vec));
@@ -101,7 +104,7 @@ for i_run = 1 : max_runs
                 x_esti = CASCL_decoder(llr, list_size_vec(i_list), info_bits, frozen_bits, det, lambda_offset, llr_layer_vec, bit_layer_vec);
             end
             
-            ber(i_ebno, i_list) = sum(x_esti ~= x) + ber(i_ebno, i_list);
+            ber(i_ebno, i_list) = sum(rem((x_esti'* G),2)' ~= u) + ber(i_ebno, i_list);
             
             if any(x_esti ~= x)
                 bler(i_ebno, i_list) = bler(i_ebno, i_list) + 1;
@@ -114,4 +117,3 @@ for i_run = 1 : max_runs
 end
 toc
 end
-
