@@ -1,4 +1,4 @@
-function [bler, ber] = simulation(N, K, design_snr, max_runs, max_err, resolution, ebno_vec, list_size_vec, gen, det, crc_length)
+function [berSCL, perSCL] = simulation(N, K, design_snr, max_runs, max_err, resolution, ebno_vec, list_size_vec, gen, det, crc_length)
 R = (K - crc_length)/N;
 % R = K/N;
 lambda_offset = 2.^(0 : log2(N));
@@ -40,10 +40,13 @@ node_type_matrix = get_node_structure(frozen_bits);
 %Results Stored
 bler = zeros(length(ebno_vec), length(list_size_vec));
 num_runs = zeros(length(ebno_vec), length(list_size_vec));
-ber = 0;
+ber = zeros(length(ebno_vec), length(list_size_vec));
 %Loop starts
 tic
 for i_run = 1 : max_runs
+    
+    berSCL = ber./(num_runs * K);
+    perSCL = bler./num_runs;
     if  mod(i_run, max_runs/resolution) == 1
         disp(' ');
         disp(['Sim iteration running = ' num2str(i_run)]);
@@ -97,6 +100,8 @@ for i_run = 1 : max_runs
             else
                 x_esti = CASCL_decoder(llr, list_size_vec(i_list), info_bits, frozen_bits, det, lambda_offset, llr_layer_vec, bit_layer_vec);
             end
+            
+            ber(i_ebno, i_list) = sum(x_esti ~= x) + ber(i_ebno, i_list);
             
             if any(x_esti ~= x)
                 bler(i_ebno, i_list) = bler(i_ebno, i_list) + 1;
