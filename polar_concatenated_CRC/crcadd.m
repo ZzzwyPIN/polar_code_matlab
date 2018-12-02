@@ -6,7 +6,7 @@ while gen(1) == 0
 end
 data_back = data; 
 for m = 1:glen-1     
-    data = [data 0]; 
+    data = [data 0];
 end
 dlen = length(data);   
 cr = data(1:glen-1); 

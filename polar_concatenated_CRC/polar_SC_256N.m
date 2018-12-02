@@ -3,13 +3,13 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.5;    % 码率
-SNR = 1:0.5:3;
-block_num = 10000;
+R = 0.44;    % 码率
+SNR = 4.2;
+block_num = 100000;
 
 % 参数计算
 snr = 10.^(SNR/10);
-% esn0 = snr * R;
+esn0 = snr * R;
 N = 2^n;
 K = floor(N*R);  % information bit length
 k_f = N - K;
@@ -27,7 +27,7 @@ Gf = G(Frozen_index,:);
 frozen_bits = zeros(1,k_f);
 rng('shuffle')
 for i = 1:length(SNR)
-    sigma = snr(i)^(-0.5);
+    sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNum = 0;
     BerNum = 0;

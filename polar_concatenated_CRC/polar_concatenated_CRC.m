@@ -32,7 +32,7 @@ load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
-% bad_info_index = sort(I(K:-1:K-k+1)); % 级联解码信息位
+bad_info_index = sort(I(K:-1:K-k+1)); % 级联解码信息位
 % best_info_index = sort(I(k:-1:1));
 
 % get generate matrix
@@ -150,10 +150,52 @@ ylabel('BER and PER in dB');
 title('Cascaded Polar Decoding');
 legend('PER1','BER1','PER2','BER2','PER','BER');
 
-semilogy(SNR,per,'r-*',SNR,ber,'r-+',SNR,perBP,'b-*',SNR,berBP,'b-+',SNR,perSC,'k-*',SNR,berSC,'k-+');
+% 
+% 
+
+
+
+%%%%0.25ber
+semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,ber,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+hold on
 xlabel('SNR in dB');
 ylabel('BER and PER in dB');
-title('Cascaded Polar Decoding');
-legend('per','ber','perBP','berBP','perSC','berSC');    
-axis([-1 5 -inf 1])
+axis([0 4 6.1e-06 0.4])
 grid on
+legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+
+%%%0.5ber
+semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,berCA_SC,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+hold on
+xlabel('SNR in dB');
+ylabel('BER and PER in dB');
+axis([0 4 9.4e-06 1])
+grid on
+legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+
+%%%per0.25
+semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+hold on
+xlabel('SNR in dB');
+ylabel('BER and PER in dB');
+axis([0 4 2.2e-05 1])
+grid on
+legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+
+%%%per0.5
+semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+hold on
+xlabel('SNR in dB');
+ylabel('BER and PER in dB');
+axis([0 4 4.4e-05 1])
+grid on
+legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+
+%%%per0.75
+semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+hold on
+xlabel('SNR in dB');
+ylabel('BER and PER in dB');
+axis([1 4 6.00e-05 1])
+grid on
+legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
