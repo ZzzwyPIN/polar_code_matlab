@@ -7,7 +7,7 @@ R = 0.25;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = -1:5;
+SNR = 0:4;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -80,13 +80,7 @@ for i = 1:length(SNR)
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             % get init LLR
-            lr_x = -2*receive_sample1./(sigma^2);
-            % decoding follow
-            lr_u = zeros(1,N); % save send sample LR in each iteration
-            frozen_index_0 = frozen_bits == 0;
-            frozen_index_1 = frozen_bits == 1;
-            lr_u(reverse_index(n,frozen_index(frozen_index_0))) = init_max;
-            lr_u(reverse_index(n,frozen_index(frozen_index_1))) = -init_max;
+            [lr_u,lr_x] = getBP_Parameter(receive_sample1,frozen_bits,frozen_index,n,init_max,sigma);
             for m = 1:length(temp_index)
                 if decision_bits2(temp_index(m)) == 0
                     lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
@@ -100,13 +94,7 @@ for i = 1:length(SNR)
         % situation 2: polar1 right, polr2 wrong;
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
             % get init LLR
-            lr_x = -2*receive_sample2./(sigma^2);
-            % decoding follow
-            lr_u = zeros(1,N); % save send sample LR in each iteration
-            frozen_index_0 = frozen_bits == 0;
-            frozen_index_1 = frozen_bits == 1;
-            lr_u(reverse_index(n,frozen_index(frozen_index_0))) = init_max;
-            lr_u(reverse_index(n,frozen_index(frozen_index_1))) = -init_max;
+            [lr_u,lr_x] = getBP_Parameter(receive_sample2,frozen_bits,frozen_index,n,init_max,sigma);
             for m = 1:length(temp_index)
                 if decision_bits1(temp_index(m)) == 0
                     lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
