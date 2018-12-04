@@ -27,7 +27,7 @@ load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 info_without_crc = sort(I(Ng+1:1:K));
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-inter_index = sort(I(K:-1:K-Kp+1));
+inter_index = sort(I(Ng+1:Ng+Kp));
 % get generate matrix
 G = encoding_matrix(n);
 Gi = G(info_index,:);

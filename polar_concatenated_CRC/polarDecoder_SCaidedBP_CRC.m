@@ -146,20 +146,32 @@ legend('PER1','BER1','PER2','BER2','PER','BER');
 %%%%0.25ber
 semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,ber,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
 hold on
+semilogy(0:4,berSC_SC_best,'r--s');
 xlabel('SNR in dB');
-ylabel('BER and PER in dB');
+ylabel('Bit Error rate');
 axis([0 4 6.1e-06 0.4])
 grid on
-legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)')
 
 %%%0.5ber
 semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,berCA_SC,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
 hold on
+semilogy(0:4,berSC_SC_best,'r--s');
 xlabel('SNR in dB');
-ylabel('BER and PER in dB');
+ylabel('Bit Error rate');
 axis([0 4 9.4e-06 1])
 grid on
-legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
+legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)')
+
+%%%0.75ber
+semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,ber,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+hold on
+semilogy(0:4,berSC_SC_best,'r--s');
+xlabel('SNR in dB');
+ylabel('Bit Error rate');
+axis([1 5 1.0e-05 1])
+legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)')
+grid on
 
 %%%per0.25
 semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
