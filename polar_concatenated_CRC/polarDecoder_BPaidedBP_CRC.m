@@ -7,8 +7,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = 0:4;
-
+SNR = 2:4;
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 block_num = 10000;
@@ -50,7 +49,9 @@ for i = 1:length(SNR)
     BerNum2 = 0;
     ReBP_counter = 0;
     ReBP_correct = 0;
-    for iter = 1:block_num
+    iter = 0;
+    while true
+        iter = iter +1;
         fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
@@ -129,14 +130,13 @@ for i = 1:length(SNR)
         if count2 ~= 0
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
+        end 
+        if (PerNum1 >= 100 && PerNum2 >= 100 && iter >= 100)
+            break;
         end
     end
-    per1(i) = PerNum1/block_num;
-    per2(i) = PerNum2/block_num;
-    ber1(i) = BerNum1/(K*block_num);
-    ber2(i) = BerNum2/(K*block_num);
-    per(i) = (per1(i)+per2(i))/2;
-    ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/block_num;
+    per(i) = (PerNum1+PerNum2)/(2*iter);
+    ber(i) = (BerNum1+BerNum2)/(2*K-k)/iter;
     rs_coun(i) = ReBP_counter;
     rs_corr(i) = ReBP_correct;
 end

@@ -3,7 +3,7 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.75;    % 码率
+R = 0.25;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
@@ -27,7 +27,8 @@ load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 info_without_crc = sort(I(Ng+1:1:K));
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-inter_index = sort(I(Ng+1:Ng+Kp));
+% inter_index = sort(I(Ng+1:Ng+Kp));
+inter_index = sort(I(K-Kp+1:K));
 % get generate matrix
 G = encoding_matrix(n);
 Gi = G(info_index,:);
@@ -41,10 +42,12 @@ for i = 1:length(SNR)
     BerNum1 = 0;
     PerNum2 = 0;
     BerNum2 = 0;
+    iter = 0;
     %counter the number of Re-SC decoding
     ReSC_counter = 0;
     ReSC_correct = 0;
-    for iter = 1:block_num
+    while true
+        iter = iter + 1;
         fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
@@ -109,13 +112,12 @@ for i = 1:length(SNR)
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end
+        if (PerNum1 >= 100 && PerNum2 >= 100)
+            break;
+        end
     end
-    per1(i) = PerNum1/block_num;
-    per2(i) = PerNum2/block_num;
-    ber1(i) = BerNum1/(K*block_num);
-    ber2(i) = BerNum2/(K*block_num);
-    per(i) = (per1(i)+per2(i))/2;
-    ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/block_num;
+    per(i) = (PerNum1+PerNum2)/(2*iter);
+    ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_coun(i) = ReSC_counter;
     rs_corr(i) = ReSC_correct;
 end
