@@ -7,10 +7,9 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = 2:4;
+SNR = [2.5 3.2 3.4 3.5];
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
-block_num = 10000;
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -52,7 +51,7 @@ for i = 1:length(SNR)
     iter = 0;
     while true
         iter = iter +1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d', iter, SNR(i),PerNum1,PerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -131,7 +130,10 @@ for i = 1:length(SNR)
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end 
-        if (PerNum1 >= 100 && PerNum2 >= 100 && iter >= 100)
+        if (PerNum1 >= 20 && PerNum2 >= 20)
+            break;
+        end
+        if iter >= 400000
             break;
         end
     end
