@@ -3,11 +3,11 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.25;    % 码率
+R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [3 3.2 3.4 3.5];                                                 
+SNR = [3.5 4];                                                 
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
@@ -45,7 +45,7 @@ for i = 1:length(SNR)
     ReSC_correct = 0;
     while true
         iter = iter + 1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d', iter, SNR(i),PerNum1,PerNum2);
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -109,10 +109,7 @@ for i = 1:length(SNR)
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end
-        if (PerNum1 >= 20 && PerNum2 >= 20)
-            break;
-        end
-        if iter >= 400000
+        if (PerNum1 >= 100 && PerNum2 >= 100 && iter >= 10000)
             break;
         end
     end
@@ -120,9 +117,4 @@ for i = 1:length(SNR)
     ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_coun(i) = ReSC_counter;
     rs_corr(i) = ReSC_correct;
-end
-fprintf('\nNow disp the Ber and Per');
-fprintf('\nPer\t\tBer\t\tPer1\tBer1\tPer2\tBer2\tEbN0');
-for i = 1:length(SNR)
-    fprintf('\n%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%d',per(i),ber(i),per1(i),ber1(i),per2(i),ber2(i),SNR(i));
 end

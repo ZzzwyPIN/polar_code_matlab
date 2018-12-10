@@ -7,7 +7,7 @@ R = 0.25;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [2.5 3.2 3.4 3.5];
+SNR = [3.5 4];
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -52,7 +52,7 @@ for i = 1:length(SNR)
     iter = 0;
     while true
         iter = iter + 1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d', iter, SNR(i),PerNum1,PerNum2);
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -120,10 +120,7 @@ for i = 1:length(SNR)
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end
-        if (PerNum1 >= 20 && PerNum2 >= 20)
-            break;
-        end
-        if iter >= 400000
+        if (PerNum1 >= 100 && PerNum2 >= 100 && iter >= 10000)
             break;
         end
     end
@@ -132,63 +129,3 @@ for i = 1:length(SNR)
     rs_coun(i) = ReSC_counter;
     rs_corr(i) = ReSC_correct;
 end
-fprintf('\nNow disp the Ber and Per');
-fprintf('\nPer\t\tBer\t\tPer1\tBer1\tPer2\tBer2\tEbN0');
-for i = 1:length(SNR)
-    fprintf('\n%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%0.4f\t%d',per(i),ber(i),per1(i),ber1(i),per2(i),ber2(i),SNR(i));
-end
-% semilogy(SNR,per1,'b-*',SNR,ber1,'b-+',SNR,per2,'k-*',SNR,ber2,'k-+',SNR,per,'r-*',SNR,ber,'r-+');
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% title('Cascaded Polar Decoding');
-% legend('PER1','BER1','PER2','BER2','PER','BER');
-% 
-% % 
-% % 
-% 
-% 
-% 
-% %%%%0.25ber
-% semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,ber,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
-% hold on
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% axis([0 4 6.1e-06 0.4])
-% grid on
-% legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
-% 
-% %%%0.5ber
-% semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,berCA_SC,'r-d',SNR,berCA_BP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
-% hold on
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% axis([0 4 9.4e-06 1])
-% grid on
-% legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
-% 
-% %%%per0.25
-% semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
-% hold on
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% axis([0 4 2.2e-05 1])
-% grid on
-% legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
-% 
-% %%%per0.5
-% semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
-% hold on
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% axis([0 4 4.4e-05 1])
-% grid on
-% legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
-% 
-% %%%per0.75
-% semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perCA_SC,'r-d',SNR,perCA_BP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
-% hold on
-% xlabel('SNR in dB');
-% ylabel('BER and PER in dB');
-% axis([1 4 6.00e-05 1])
-% grid on
-% legend('SC','BP','CA-SC','CA-BP','SCL8','SCL32')
