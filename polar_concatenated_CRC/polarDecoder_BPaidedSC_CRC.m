@@ -3,11 +3,11 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.25;    % 码率
+R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [3.5 4];
+SNR = 1;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -70,10 +70,10 @@ for i = 1:length(SNR)
         receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2));
         
         % BP decoder follow
-        [lr_u,lr_x] = getBP_Parameter(receive_sample1,frozen_bits,frozen_index,n,init_max,sigma);
-        decision_bits1 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
-        [lr_u,lr_x] = getBP_Parameter(receive_sample2,frozen_bits,frozen_index,n,init_max,sigma);
-        decision_bits2 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
+        [lr_u1,lr_x1] = getBP_Parameter(receive_sample1,frozen_bits,frozen_index,n,init_max,sigma);
+        decision_bits1 = polarBP_decoder(n,lr_u1,lr_x1,max_iter,info_index);
+        [lr_u2,lr_x2] = getBP_Parameter(receive_sample2,frozen_bits,frozen_index,n,init_max,sigma);
+        decision_bits2 = polarBP_decoder(n,lr_u2,lr_x2,max_iter,info_index);
         
         % CRC check follow
         receive_crc_bits1 = crccheck(decision_bits1,poly);
@@ -84,7 +84,7 @@ for i = 1:length(SNR)
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             % modify polar1 frozen_index frozen_bits info_index
-            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits2);
+            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_without_crc,temp_index,decision_bits2);
             decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
             ReSC_counter = ReSC_counter + 1;
             if sum(crccheck(decision_bits1,poly)) == 0
@@ -94,7 +94,7 @@ for i = 1:length(SNR)
         
         % situation 2: polar1 right, polr2 wrong;
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
-           [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits1);
+           [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_without_crc,temp_index,decision_bits1);
             decision_bits2 = polarSC_decoder(n,receive_sample2,sigma,frozen_index,frozen_bits,info_index);
             ReSC_counter = ReSC_counter + 1;
             if sum(crccheck(decision_bits2,poly)) == 0

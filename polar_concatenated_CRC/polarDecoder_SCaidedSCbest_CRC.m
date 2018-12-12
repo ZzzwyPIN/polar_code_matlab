@@ -7,7 +7,7 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [0 1 2 3 3.5 4];                                                 
+SNR = [3.5 4];                                                 
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
@@ -74,7 +74,7 @@ for i = 1:length(SNR)
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             % modify polar1 frozen_index frozen_bits info_index
-            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits2);
+            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_without_crc,temp_index,decision_bits2);
             decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
             ReSC_counter = ReSC_counter + 1;
             if sum(crccheck(decision_bits1,poly)) == 0
@@ -84,7 +84,7 @@ for i = 1:length(SNR)
         
         % situation 2: polar1 right, polr2 wrong;
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
-            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_index,temp_index,decision_bits1);
+            [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_without_crc,temp_index,decision_bits1);
             decision_bits2 = polarSC_decoder(n,receive_sample2,sigma,frozen_index,frozen_bits,info_index);
             ReSC_counter = ReSC_counter + 1;
             if sum(crccheck(decision_bits2,poly)) == 0

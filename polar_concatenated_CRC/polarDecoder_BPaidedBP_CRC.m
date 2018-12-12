@@ -7,7 +7,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [3.5 4];
+SNR = 2;
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 
@@ -22,8 +22,6 @@ N = 2^n;
 K = N*R;  % information bit length
 Kp = N*R*0.25;  % Cascaded decoding length
 k_f = N-K;% frozen_bits length
-% source_block = 2*k-k1;
-% frozen_block = 2*k_f;
 
 % get information bits and concatenated bits
 load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
@@ -84,9 +82,9 @@ for i = 1:length(SNR)
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             for m = 1:length(temp_index)
                 if decision_bits2(temp_index(m)) == 0
-                    lr_u1(reverse_index(n,info_index(temp_index(m)))) = init_max;
+                    lr_u1(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
                 else
-                    lr_u1(reverse_index(n,info_index(temp_index(m)))) = -init_max;
+                    lr_u1(reverse_index(n,info_without_crc(temp_index(m)))) = -init_max;
                 end
             end
             decision_bits1 = polarBP_decoder(n,lr_u1,lr_x1,max_iter,info_index);
@@ -100,9 +98,9 @@ for i = 1:length(SNR)
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
            for m = 1:length(temp_index)
                 if decision_bits1(temp_index(m)) == 0
-                    lr_u2(reverse_index(n,info_index(temp_index(m)))) = init_max;
+                    lr_u2(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
                 else
-                    lr_u2(reverse_index(n,info_index(temp_index(m)))) = -init_max;
+                    lr_u2(reverse_index(n,info_without_crc(temp_index(m)))) = -init_max;
                 end
             end
             decision_bits2 = polarBP_decoder(n,lr_u2,lr_x2,max_iter,info_index);
@@ -114,10 +112,6 @@ for i = 1:length(SNR)
         
         % situation 3 and 4: polar1 and polar2 are both right or wrong
         % we have no salution.
-        
-        % reset the frozen_bits and frozen_index
-        frozen_index = frozen_index(1:k_f);
-        frozen_bits = frozen_bits(1:k_f);
         
         % calculate BER and PER
         count1 = sum(decision_bits1 ~= source_crc_bit1);

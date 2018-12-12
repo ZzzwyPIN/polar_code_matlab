@@ -6,7 +6,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [3.5 4];
+SNR = 3;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -87,9 +87,9 @@ for i = 1:length(SNR)
             [lr_u,lr_x] = getBP_Parameter(receive_sample1,frozen_bits,frozen_index,n,init_max,sigma);
             for m = 1:length(temp_index)
                 if decision_bits2(temp_index(m)) == 0
-                    lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
+                    lr_u(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
                 else
-                    lr_u(reverse_index(n,info_index(temp_index(m)))) = -init_max;
+                    lr_u(reverse_index(n,info_without_crc(temp_index(m)))) = -init_max;
                 end
             end
             decision_bits1 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
@@ -105,9 +105,9 @@ for i = 1:length(SNR)
             [lr_u,lr_x] = getBP_Parameter(receive_sample2,frozen_bits,frozen_index,n,init_max,sigma);
             for m = 1:length(temp_index)
                 if decision_bits1(temp_index(m)) == 0
-                    lr_u(reverse_index(n,info_index(temp_index(m)))) = init_max;
+                    lr_u(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
                 else
-                    lr_u(reverse_index(n,info_index(temp_index(m)))) = -init_max;
+                    lr_u(reverse_index(n,info_without_crc(temp_index(m)))) = -init_max;
                 end
             end
             decision_bits2 = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index);
