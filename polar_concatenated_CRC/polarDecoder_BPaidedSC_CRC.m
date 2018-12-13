@@ -7,7 +7,7 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = 1;
+SNR = [0 1 2 3 3.5 4]; 
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -30,9 +30,11 @@ k_f = N-K;% frozen_bits length
 load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
-info_without_crc = sort(I(Ng+1:1:K));
+info_without_crc = info_index(1:K-Ng);
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-inter_index = sort(I(K:-1:K-Kp+1));
+[~,temp] = sort(P(info_without_crc));
+inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));
+clear temp;
 
 % get generate matrix
 G = encoding_matrix(n);
