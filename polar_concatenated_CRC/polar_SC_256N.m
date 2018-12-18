@@ -3,9 +3,8 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.44;    % 码率
-SNR = 4.2;
-block_num = 100000;
+R = 0.4375;    % 码率
+SNR = [0 1 2 3 3.5 4];
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -17,13 +16,13 @@ k_f = N - K;
 % get information bits and concatenated bits
 load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
 [Ptmp, I] = sort(P);
-Info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
-Frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
+info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
+frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
 
 % get generate matrix
 G = encoding_matrix(n);
-Gi = G(Info_index,:);
-Gf = G(Frozen_index,:);
+Gi = G(info_index,:);
+Gf = G(frozen_index,:);
 frozen_bits = zeros(1,k_f);
 rng('shuffle')
 for i = 1:length(SNR)
@@ -31,8 +30,10 @@ for i = 1:length(SNR)
     % set PER and BER counter
     PerNum = 0;
     BerNum = 0;
-    for iter = 1:block_num
-        fprintf('\nNow iter: %2d\tNow SNR: %d', iter, SNR(i));
+    iter = 0;
+    while (true)
+        iter = iter + 1;
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow perNum: %2d\tNow berNum: %2d', iter, SNR(i),PerNum,BerNum);
         source_bit = randi([0 1],1,K);
         encode_temp = rem(source_bit*Gi + frozen_bits*Gf,2);
     
@@ -41,18 +42,18 @@ for i = 1:length(SNR)
         % add noise
         receive_sample = encode_temp + sigma * randn(size(encode_temp));
         
-        [receive_bits, ~] = polarSC_decoder(n,receive_sample,sigma,Frozen_index,frozen_bits,Info_index);
+        [receive_bits, ~] = polarSC_decoder(n,receive_sample,sigma,frozen_index,frozen_bits,info_index);
         
         % calculate BER and PER
-%         error_index = find(receive_bits ~= source_bit);
-%         fprintf('\nNow error index: %3d\t The error lr: ',error_index);
-%         disp(info_lr(error_index));
         count = sum(receive_bits ~= source_bit);
         if count ~= 0
             PerNum = PerNum + 1;
             BerNum = BerNum + count;
         end 
+        if (PerNum >= 100 && iter >= 10000)
+            break;
+        end
     end
-    perSC(i) = PerNum/block_num;
-    berSC(i) = BerNum/(K*block_num);
+    perSC(i) = PerNum/iter;
+    berSC(i) = BerNum/(K*iter);
 end

@@ -1,4 +1,4 @@
-function receive_bp_bits = polarBP_decoder(n,lr_u,lr_x,max_iter,Info_index)
+function receive_bp_bits = polarBP_decoder(n,lr_u,lr_x,max_iter,info_index)
 %%% Polar BP Decoder Function
 %%% lr_x:init LLR received
 %%% lr_u:init LLR send
@@ -14,4 +14,4 @@ for idx = 1:max_iter
 end
 temp = rel_mat_RtoL(:,n) + lr_u';
 final_lr = temp(reverse_index(n,1:length(temp)));
-receive_bp_bits = (final_lr(Info_index) < 0)';
+receive_bp_bits = (final_lr(info_index) < 0)';

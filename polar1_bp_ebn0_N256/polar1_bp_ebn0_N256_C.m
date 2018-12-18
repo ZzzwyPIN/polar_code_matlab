@@ -8,9 +8,8 @@ clear;
 % TOP_SCALE = 0;
 n = 8;
 N = 2^n;
-R = 0.5; 
-block_num = 10000;
-SNR = -1:5;
+R = 0.36; 
+SNR = 0;
 snr = 10.^(SNR/10);
 g_bp_init_max = 3;  % limit the max LR of the channel to be within [-3, 3]
 g_bp_max = g_bp_init_max * (n); % used to indicate max LR of frozen bits
@@ -28,7 +27,7 @@ G = encoding_matrix(n); %产生G矩阵   F@(i)F     (1;n+1;2;n+2;3;n+3;......;n-1;2n
 frozen_bits = randi([0,1],1,N-K);
 encoded_bits = zeros(1,N);  %极化码编码矩阵
 received_bits = zeros(1,N);
-load('Pe_snr0p0db_2048_n_8.mat');
+load('Pe_N256_snr0.mat');
 % (2) find cut-off Z value below which the rows of G will be used for encoding
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
@@ -37,13 +36,14 @@ Gi = G(info_index,:);  % 选取G矩阵coding行数
 % (6) form the encoding matrix for frozen bits
 Gf = G(frozen_index,:);  % 选取G矩阵frozen行数
 rng('shuffle');
-ebn0 = K/N*snr;
 for i_aw = 1:length(SNR)
-    sigma = (2*ebn0(i_aw))^(-0.5);
+    sigma = snr(i_aw)^(-0.5);
     ber = 0;
     per = 0;
+    r_idx = 0;
     % BPSK modulation
-    for r_idx = 1:block_num
+    while true
+        r_idx = r_idx +1;
         fprintf('\nNow iter: %2d\tNow SNR: %d',r_idx, SNR(i_aw));
         noise = sigma * randn(1,N);
         source_bits = randi([0,1],1,K);
@@ -207,8 +207,8 @@ for i_aw = 1:length(SNR)
            per = per +1;
         end
     end
-    BER_BP(1,i_aw)= ber/(K * block_num);
-    PER_BP(1,i_aw)= per / block_num;
+    BER_BP(1,i_aw)= ber/(K * r_idx);
+    PER_BP(1,i_aw)= per / r_idx;
     disp('循环次数')
     i_aw
 end

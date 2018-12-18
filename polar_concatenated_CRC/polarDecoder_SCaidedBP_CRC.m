@@ -27,7 +27,7 @@ k_f = N-K;% frozen_bits length
 % frozen_block = 2*k_f;
 
 % get information bits and concatenated bits
-load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
+load('Pe_N256_SNR3_R5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 info_without_crc = info_index(1:K-Ng);
@@ -135,6 +135,7 @@ for i = 1:length(SNR)
             break;
         end
     end
+    iterNum(i) = iter;
     per(i) = (PerNum1+PerNum2)/(2*iter);
     ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_coun(i) = ReBP_counter;

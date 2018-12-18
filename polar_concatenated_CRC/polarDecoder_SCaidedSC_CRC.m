@@ -7,10 +7,10 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [3.5 4];                                                 
+EbN0indB = [0 1 2 3 3.5 4];                                                 
 % 参数计算
-snr = 10.^(SNR/10);
-esn0 = snr * R;
+EbN0 = 10.^(EbN0indB/10);
+EsN0 = EbN0 * R;
 N = 2^n;
 K = N*R;  % information bit length
 Kp = N*R*0.25;  % Cascaded decoding length
@@ -19,7 +19,7 @@ k_f = N-K;% frozen_bits length
 % frozen_block = 2*k_f;
 
 % get information bits and concatenated bits
-load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
+load('Pe_N256_SNR3_R5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 info_without_crc = info_index(1:K-Ng);
@@ -33,8 +33,8 @@ Gi = G(info_index,:);
 Gf = G(frozen_index,:);
 frozen_bits = randi([0 1],1,k_f);
 rng('shuffle');
-for i = 1:length(SNR)
-    sigma = (2*esn0(i))^(-0.5);
+for i = 1:length(EbN0indB)
+    sigma = (2*EsN0(i))^(-0.5);
     % set PER and BER counter
     PerNum1 = 0;
     BerNum1 = 0;
@@ -46,7 +46,7 @@ for i = 1:length(SNR)
     ReSC_correct = 0;
     while true
         iter = iter + 1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, EbN0indB(i),PerNum1,PerNum2,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -114,6 +114,7 @@ for i = 1:length(SNR)
             break;
         end
     end
+    iterNum(i) = iter;
     per(i) = (PerNum1+PerNum2)/(2*iter);
     ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_coun(i) = ReSC_counter;

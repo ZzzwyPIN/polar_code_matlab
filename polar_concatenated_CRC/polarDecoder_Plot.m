@@ -3,10 +3,11 @@ clear;
 %%
 %R = 0.25
 load('result/final/poalr_R0.25_total_1204.mat');
-
+esn0 = [-0.4375 0 0.4375 0.8750 1.3125 1.7500 2.1875];
+esn0_ = [0 0.4375 0.8750 1.3125 1.5313 1.7500];
 %ber
 figure
-semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,berSC_ReSC_w,'r-d',SNR,berSC_ReBP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+semilogy(esn0,berSC,'b-*',esn0,berBP,'k-+',esn0,berSC_ReSC_w,'r-d',esn0,berSC_ReBP,'m-p',esn0,berSCL8,'c-o',esn0,berSCL32,'b-^');
 hold on
 semilogy(0:4,berSC_ReSC_b,'r-s',0:4,berBP_ReSC,'k-h',0:4,berBP_ReBP,'b-p');
 xlabel('SNR in dB');
@@ -17,7 +18,7 @@ legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K
 
 %per
 figure
-semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perSC_ReSC_w,'r-d',SNR,perSC_ReBP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+semilogy(esn0,perSC,'b-*',esn0,perBP,'k-+',esn0,perSC_ReSC_w,'r-d',esn0,perSC_ReBP,'m-p',esn0,perSCL8,'c-o',esn0,perSCL32,'b-^');
 hold on
 semilogy(0:4,perSC_ReSC_b,'r-s',0:4,perBP_ReSC,'k-h',0:4,perBP_ReBP,'b-p');
 xlabel('SNR in dB');
@@ -31,25 +32,25 @@ legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K
 clear;
 load('result/final/poalr_R0.5_total_1204.mat')
 %ber
-SNR = -1:5;
-SNR1 = [0 1 2 3 3.5 4];
+esn0 = [-0.4375 0 0.4375 0.8750 1.3125 1.7500 2.1875];
+esn0_ = [0 0.4375 0.8750 1.3125 1.5313 1.7500];
 figure
-semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR1,berSC_ReSC_w,'r-d',SNR1,berSC_ReBP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+semilogy(esn0_,berSC,'b-*',esn0_,berBP,'k-+',esn0_,berSC_ReSC_w,'r-d',esn0_,berSC_ReBP,'m-p',esn0,berSCL8,'c-o',esn0,berSCL32,'b-^');
 hold on
-semilogy(SNR1,berSC_ReSC_b,'r-s',SNR1,berBP_ReSC,'k-h',SNR1,berBP_ReBP,'b-p');
-xlabel('SNR in dB');
+semilogy(esn0_,berSC_ReSC_b,'r-s',esn0_,berBP_ReSC,'k-h',esn0_,berBP_ReBP,'b-p');
+xlabel('Eb/N0');
 ylabel('Bit Error rate');
-axis([0 4 6.3e-06 1])
+axis([0 1.75 5.0e-06 1])
 grid on
 legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)','BP-SC','BP-BP')
 %per
 figure
-semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR1,perSC_ReSC_w,'r-d',SNR1,perSC_ReBP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+semilogy(esn0_,perSC,'b-*',esn0_,perBP,'k-+',esn0_,perSC_ReSC_w,'r-d',esn0_,perSC_ReBP,'m-p',esn0,perSCL8,'c-o',esn0,perSCL32,'b-^');
 hold on
-semilogy(SNR1,perSC_ReSC_b,'r-s',SNR1,perBP_ReSC,'k-h',SNR1,perBP_ReBP,'b-p');
-xlabel('SNR in dB');
+semilogy(esn0_,perSC_ReSC_b,'r-s',esn0_,perBP_ReSC,'k-h',esn0_,perBP_ReBP,'b-p');
+xlabel('Eb/N0');
 ylabel('Frame Error rate');
-axis([0 4 4.4e-05 1])
+axis([0 1.75 2.8e-05 1])
 grid on
 legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)','BP-SC','BP-BP')
 
@@ -57,9 +58,11 @@ legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K
 %R = 0.75
 clear;
 load('result/final/poalr_R0.75_total_1204.mat')
+esn0 = [-0.4375 0 0.4375 0.8750 1.3125 1.7500 2.1875];
+esn0_ = [0 0.4375 0.8750 1.3125 1.5313 1.7500];
 %ber
 figure
-semilogy(SNR,berSC,'b-*',SNR,berBP,'k-+',SNR,berSC_ReSC_w,'r-d',SNR,berSC_ReBP,'m-p',SNR,berSCL8,'c-o',SNR,berSCL32,'b-^');
+semilogy(esn0,berSC,'b-*',esn0,berBP,'k-+',esn0,berSC_ReSC_w,'r-d',esn0,berSC_ReBP,'m-p',esn0,berSCL8,'c-o',esn0,berSCL32,'b-^');
 hold on
 semilogy(0:4,berSC_ReSC_b,'r-s',0:4,berBP_ReSC,'k-h',0:4,berBP_ReBP,'b-p');
 xlabel('SNR in dB');
@@ -69,7 +72,7 @@ grid on
 legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K_{p}best)','BP-SC','BP-BP')
 %per
 figure
-semilogy(SNR,perSC,'b-*',SNR,perBP,'k-+',SNR,perSC_ReSC_w,'r-d',SNR,perSC_ReBP,'m-p',SNR,perSCL8,'c-o',SNR,perSCL32,'b-^');
+semilogy(esn0,perSC,'b-*',esn0,perBP,'k-+',esn0,perSC_ReSC_w,'r-d',esn0,perSC_ReBP,'m-p',esn0,perSCL8,'c-o',esn0,perSCL32,'b-^');
 hold on
 semilogy(0:4,perSC_ReSC_b,'r-s',0:4,perBP_ReSC,'k-h',0:4,perBP_ReBP,'b-p');
 xlabel('SNR in dB');

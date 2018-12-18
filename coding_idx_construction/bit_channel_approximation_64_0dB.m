@@ -8,10 +8,10 @@
 
 %%
 clc;clear;
-n=9; % coding level
+n=8; % coding level
 N = 2^n; % block length
 
-CHANNEL_TYPE = 1; % 0: AWGN, 1: BSC, 2: BEC
+CHANNEL_TYPE = 0; % 0: AWGN, 1: BSC, 2: BEC
 
 R = 0.5; % code rate 
 K = floor(N * R); % # of inforamtion bits in one code block
@@ -46,7 +46,7 @@ end
 %yh: higher bound of y in a symbol
 if CHANNEL_TYPE == 0  
    %param
-   snr = 0; % in dB
+   snr = 3; % in dB
    sigma = (1/10^(snr/10))^0.5;
 %    sigma = 0.1;
    % size of the degrading of the continuous AWGN channel to a discrete channel with a
