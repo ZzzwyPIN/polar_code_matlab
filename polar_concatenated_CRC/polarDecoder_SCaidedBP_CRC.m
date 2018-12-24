@@ -6,7 +6,7 @@ R = 0.5;    % 码率
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [0 1 2 3 3.5 4];
+SNR = [0 1 2 3 3.5];
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -26,23 +26,32 @@ k_f = N-K;% frozen_bits length
 % source_block = 2*k-k1;
 % frozen_block = 2*k_f;
 
-% get information bits and concatenated bits
-load('Pe_N256_SNR3_R5.mat');   % load the channel information
-[Ptmp, I] = sort(P);
-info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
-info_without_crc = info_index(1:K-Ng);
-frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-[~,temp] = sort(P(info_without_crc));
-inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));
-clear temp;
-
-% get generate matrix
-G = encoding_matrix(n);
-Gi = G(info_index,:);
-Gf = G(frozen_index,:);
-frozen_bits = randi([0 1],1,k_f);
 rng('shuffle');
 for i = 1:length(SNR)
+    
+    if SNR(i) == 3.5
+        filename = sprintf('Pe_N256_snr%1.1f_R5.mat',SNR(i));
+    else
+        filename = sprintf('Pe_N256_snr%d_R5.mat',SNR(i));
+    end
+    
+    % get information bits and concatenated bits
+    load(filename);   % load the channel information
+    [Ptmp, I] = sort(P);
+    info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
+    info_without_crc = info_index(1:K-Ng);
+    frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
+    [~,temp] = sort(P(info_without_crc));
+    inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));
+    clear temp;
+    
+    % get generate matrix
+    G = encoding_matrix(n);
+    Gi = G(info_index,:);
+    Gf = G(frozen_index,:);
+    frozen_bits = randi([0 1],1,k_f);
+    
+    
     sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNum1 = 0;

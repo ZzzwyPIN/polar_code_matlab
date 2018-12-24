@@ -3,8 +3,8 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.4375;    % 码率
-SNR = [0 1 2 3 3.5 4];
+R = 0.44;    % 码率
+SNR = 4;
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -14,10 +14,10 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
+load('Pe_N256_snr4_R5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
-info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
-frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
+info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
+frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
 
 % get generate matrix
 G = encoding_matrix(n);
@@ -42,7 +42,7 @@ for i = 1:length(SNR)
         % add noise
         receive_sample = encode_temp + sigma * randn(size(encode_temp));
         
-        [receive_bits, ~] = polarSC_decoder(n,receive_sample,sigma,frozen_index,frozen_bits,info_index);
+        receive_bits = polarSC_decoder(n,receive_sample,sigma,frozen_index,frozen_bits,info_index);
         
         % calculate BER and PER
         count = sum(receive_bits ~= source_bit);
@@ -54,6 +54,7 @@ for i = 1:length(SNR)
             break;
         end
     end
+    iterNum(i) = iter;
     perSC(i) = PerNum/iter;
     berSC(i) = BerNum/(K*iter);
 end

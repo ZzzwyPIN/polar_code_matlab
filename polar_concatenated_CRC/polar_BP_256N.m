@@ -3,14 +3,14 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.36;    % 码率
-SNR = 0;
+R = 0.44;    % 码率
+SNR = 4;
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
-max_iter = 60;
+max_iter = 40;
 
 % 参数计算
 snr = 10.^(SNR/10);
-% esn0 = snr * R;
+esn0 = snr * R;
 init_max = init_lr_max * n;
 if init_max > 30
     init_max = 30;
@@ -20,7 +20,7 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_N256_snr0.mat');   % load the channel information
+load('Pe_N256_snr4_R5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
@@ -33,7 +33,7 @@ Gf = G(frozen_index,:);
 frozen_bits = zeros(1,k_f);
 rng('shuffle')
 for i = 1:length(SNR)
-    sigma = snr(i)^(-0.5);
+    sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNum = 0;
     BerNum = 0;
@@ -67,7 +67,7 @@ for i = 1:length(SNR)
             BerNum = BerNum + count;
         end
         
-        if (iter >= 1000)
+        if (PerNum >= 50 && iter >= 10000)
             break;
         end
     end

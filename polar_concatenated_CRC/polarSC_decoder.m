@@ -1,4 +1,4 @@
-function [r, info_lr] = polarSC_decoder(n,received_sample,sigma,frozen_idx,frozen_bits,info_index)
+function r = polarSC_decoder(n,received_sample,sigma,frozen_idx,frozen_bits,info_index)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 received_bits = zeros(1,2^n);
 N = 2^n;
@@ -141,4 +141,4 @@ for j=2:2:(N-2)
 end
 % 除u1,u2和其对应的似然值计算结束
 r = received_bits(info_index);
-info_lr = mem_lr(reverse_index(n,info_index),1);
+% info_lr = mem_lr(reverse_index(n,info_index),1);
