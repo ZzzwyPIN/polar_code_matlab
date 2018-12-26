@@ -47,11 +47,11 @@ crc_length = 8;
 [gen, det] = get_crc_objective(crc_length);
 n = 8;
 N = 2^n;
-K = 56 + crc_length;
-ebno_vec = -1:5; %row vec, you can write it like [1 1.5 2 2.5 3] 
-list_vec = [1];  %row vec, you can write it like [1 4 16 32 ...]. The first element is always 1 for acceleration purpose. The ramaining elements are power of two.
+K = 104 + crc_length;
+ebno_vec = [0 1 2 3 3.5 4]; %row vec, you can write it like [1 1.5 2 2.5 3] 
+list_vec = [1 8 32];    %row vec, you can write it like [1 4 16 32 ...]. The first element is always 1 for acceleration purpose. The ramaining elements are power of two.
 max_runs = 1e7;
 max_err = 100;
-resolution = 1e4;%the results are shown per max_runs/resolution.
+resolution = 1e4;   %the results are shown per max_runs/resolution.
 [bler, ber] = simulation(N, K, design_snr, max_runs, max_err, resolution,  ebno_vec, list_vec, gen, det, crc_length);
 

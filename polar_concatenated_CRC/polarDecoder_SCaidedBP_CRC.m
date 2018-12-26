@@ -6,7 +6,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [0 1 2 3 3.5];
+SNR = 3;
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;

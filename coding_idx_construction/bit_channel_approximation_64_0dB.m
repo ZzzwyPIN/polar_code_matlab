@@ -46,10 +46,11 @@ end
 %yh: higher bound of y in a symbol
 if CHANNEL_TYPE == 0  
    %param
-   SNR = 4; % in dB
+   SNR = 3.2; % in dB
    snr = 10^(SNR/10);
    esn0 = snr * R;
    sigma = (2*esn0)^-0.5;
+%    sigma = snr^-0.5;
 %    sigma = 0.1;
    % size of the degrading of the continuous AWGN channel to a discrete channel with a
    % finite output size u=2*v

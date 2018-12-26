@@ -7,7 +7,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [0 1 2 3]; 
+SNR = 3; 
 
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
@@ -27,7 +27,7 @@ k_f = N-K;% frozen_bits length
 % frozen_block = 2*k_f;
 rng('shuffle');
 for i = 1:length(SNR)
-    %%
+    
     if SNR(i) == 3.5
         filename = sprintf('Pe_N256_snr%1.1f_R5.mat',SNR(i));
     else
@@ -49,7 +49,7 @@ for i = 1:length(SNR)
     Gi = G(info_index,:);
     Gf = G(frozen_index,:);
     frozen_bits = randi([0 1],1,k_f);
-    %%
+    
     sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
     PerNum1 = 0;

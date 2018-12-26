@@ -6,7 +6,7 @@
 EbN0 = 1;
 R = 0.5;
 sigma = sqrt(1/2/R)*10^(-EbN0/20);
-n = 10;
+n = 8;
 N = 2^n;
 tic
 u = GA(sigma, N);%u is the mean value vector for subchannels after the wohle polarization process

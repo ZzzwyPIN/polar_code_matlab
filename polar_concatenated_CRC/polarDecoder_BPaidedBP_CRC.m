@@ -7,7 +7,7 @@ R = 0.5;    % ÂëÂÊ
 Ng = 8;
 poly = [1 1 1 0 1 0 1 0 1];
 
-SNR = [0 1 2 3];
+SNR = [0 1 2 3 3.5];
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 
@@ -53,12 +53,15 @@ for i = 1:length(SNR)
     BerNum1 = 0;
     PerNum2 = 0;
     BerNum2 = 0;
-    ReBP_counter = 0;
-    ReBP_correct = 0;
+    ReBP_oddWrong = 0;
+    ReBP_evenWrong = 0;
+    ReBP_oddCorrect = 0;
+    ReBP_evenCorrect = 0;
+    AllWrong = 0;
+    AllRight = 0;
     iter = 0;
     while true
         iter = iter +1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -89,6 +92,7 @@ for i = 1:length(SNR)
         
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
+            ReBP_oddWrong = ReBP_oddWrong + 1;
             for m = 1:length(temp_index)
                 if decision_bits2(temp_index(m)) == 0
                     lr_u1(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
@@ -97,14 +101,14 @@ for i = 1:length(SNR)
                 end
             end
             decision_bits1 = polarBP_decoder(n,lr_u1,lr_x1,max_iter,info_index);
-            ReBP_counter = ReBP_counter + 1;
             if sum(crccheck(decision_bits1,poly)) == 0
-               ReBP_correct =  ReBP_correct + 1;
+               ReBP_oddCorrect =  ReBP_oddCorrect + 1;
             end
         end
         
         % situation 2: polar1 right, polr2 wrong;
         if isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
+            ReBP_evenWrong = ReBP_evenWrong + 1;
            for m = 1:length(temp_index)
                 if decision_bits1(temp_index(m)) == 0
                     lr_u2(reverse_index(n,info_without_crc(temp_index(m)))) = init_max;
@@ -113,13 +117,19 @@ for i = 1:length(SNR)
                 end
             end
             decision_bits2 = polarBP_decoder(n,lr_u2,lr_x2,max_iter,info_index);
-            ReBP_counter = ReBP_counter + 1;
             if sum(crccheck(decision_bits2,poly)) == 0
-               ReBP_correct =  ReBP_correct + 1;
+               ReBP_evenCorrect =  ReBP_evenCorrect + 1;
             end
         end
         
         % situation 3 and 4: polar1 and polar2 are both right or wrong
+        if ~isempty(find(receive_crc_bits1,1)) && ~isempty(find(receive_crc_bits2,1))
+            AllWrong = AllWrong + 1;
+        end
+        
+        if isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
+            AllRight = AllRight + 1;
+        end
         % we have no salution.
         
         % calculate BER and PER
@@ -133,13 +143,19 @@ for i = 1:length(SNR)
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
         end 
-        if (PerNum1 >= 100 && PerNum2 >= 100 && iter >= 10000)
+        
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
+        if (perNum1>=100 && perNum2>=100 && iter>=10000)
             break;
         end
     end
     iterNum(i) = iter;
     per(i) = (PerNum1+PerNum2)/(2*iter);
     ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
-    rs_coun(i) = ReBP_counter;
-    rs_corr(i) = ReBP_correct;
+    rs_oddwrong(i) = ReBP_oddWrong;
+    rs_evenwrong(i) = ReBP_evenWrong;
+    rs_oddcorr(i) = ReBP_oddCorrect;
+    rs_evencorr(i) = ReBP_evenCorrect;
+    all_right(i) = AllRight;
+    all_wrong(i) = AllWrong;
 end
