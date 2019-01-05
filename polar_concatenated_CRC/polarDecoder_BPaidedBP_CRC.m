@@ -4,8 +4,8 @@ clear
 % 基本参数设置
 n = 8;  % 比特位数
 R = 0.5;    % 码率
-Ng = 11;
-poly = [1 1 1 0 0 0 1 0 0 0 0 1];
+Ng = 16;
+poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 
 SNR = [0 1 2 3 3.5];
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]

@@ -29,8 +29,8 @@ legend('SC','BP','SC-SC(K_{p}worst)','SC-BP(K_{p}worst)','SCL8','SCL32','SC-SC(K
 
 %%
 % R = 0.5
-% clear;
-% load('result/final/poalr_R0.5_total_1204.mat')
+clear;
+load('result/final/poalr_R0.5_total_1204.mat')
 %ber
 SNR = [0 1 2 3 3.5 4];
 SNR1 = [0 1 2 3 4];

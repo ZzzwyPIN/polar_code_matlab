@@ -4,10 +4,10 @@ clear
 % 基本参数设置
 n = 8;  % 比特位数
 R = 0.5;    % 码率
-Ng = 11;
-poly = [1 1 1 0 0 0 1 0 0 0 0 1];
+Ng = 16;
+poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 
-SNR = 3.5;                                                 
+SNR = 3.5;
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
@@ -61,7 +61,6 @@ for i = 1:length(SNR)
         if (oddNum ~= PerNum1 || evenNum ~= PerNum2)
            break; 
         end
-        
         
         fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow oddNum: %2d\tNow PerNum2: %2d\tNow evenNum: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,oddNum,PerNum2,evenNum,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
