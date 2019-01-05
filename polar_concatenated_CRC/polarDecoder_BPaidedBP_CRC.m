@@ -4,8 +4,8 @@ clear
 % 基本参数设置
 n = 8;  % 比特位数
 R = 0.5;    % 码率
-Ng = 8;
-poly = [1 1 1 0 1 0 1 0 1];
+Ng = 11;
+poly = [1 1 1 0 0 0 1 0 0 0 0 1];
 
 SNR = [0 1 2 3 3.5];
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
@@ -60,8 +60,20 @@ for i = 1:length(SNR)
     AllWrong = 0;
     AllRight = 0;
     iter = 0;
+    even_missCheck = 0;
+    odd_missCheck = 0;
+    allright_missCheckOdd = 0;
+    allright_missCheckEven = 0;
     while true
         iter = iter +1;
+        % 异常处理
+        evenNum = (ReBP_evenWrong - ReBP_evenCorrect) + AllWrong;
+        oddNum = (ReBP_oddWrong - ReBP_oddCorrect) + AllWrong;
+        if (oddNum ~= PerNum1 || evenNum ~= PerNum2)
+           break; 
+        end
+       
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow oddNum: %2d\tNow PerNum2: %2d\tNow evenNum: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,oddNum,PerNum2,evenNum,BerNum1+BerNum2);
         source_bit1 = randi([0 1],1,K-Ng);
         source_bit2 = randi([0 1],1,K-Kp-Ng);
         [~,temp_index] = ismember(inter_index,info_without_crc);
@@ -90,6 +102,11 @@ for i = 1:length(SNR)
         % crc Check Result：If only one polar is uncorrect,then using BP
         % decoder with some concatenated bits extrasinc information.
         
+        % reset the flag
+        odd_correctFlag = false;
+        even_correctFlag = false;
+        allright_flag = false;
+        
         % situation 1: polar1 wrong, polr2 right;
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             ReBP_oddWrong = ReBP_oddWrong + 1;
@@ -103,6 +120,7 @@ for i = 1:length(SNR)
             decision_bits1 = polarBP_decoder(n,lr_u1,lr_x1,max_iter,info_index);
             if sum(crccheck(decision_bits1,poly)) == 0
                ReBP_oddCorrect =  ReBP_oddCorrect + 1;
+               odd_correctFlag = true;
             end
         end
         
@@ -119,6 +137,7 @@ for i = 1:length(SNR)
             decision_bits2 = polarBP_decoder(n,lr_u2,lr_x2,max_iter,info_index);
             if sum(crccheck(decision_bits2,poly)) == 0
                ReBP_evenCorrect =  ReBP_evenCorrect + 1;
+               even_correctFlag = true;
             end
         end
         
@@ -129,6 +148,7 @@ for i = 1:length(SNR)
         
         if isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             AllRight = AllRight + 1;
+            allright_flag = true;
         end
         % we have no salution.
         
@@ -137,17 +157,29 @@ for i = 1:length(SNR)
         if count1 ~= 0
             PerNum1 = PerNum1 + 1;
             BerNum1 = BerNum1 + count1;
+            if odd_correctFlag
+                odd_missCheck = odd_missCheck + 1;
+            end
+            if allright_flag
+               allright_missCheckOdd = allright_missCheckOdd + 1; 
+            end
         end
         count2 = sum(decision_bits2 ~= source_crc_bit2);
         if count2 ~= 0
             PerNum2 = PerNum2 + 1;
             BerNum2 = BerNum2 + count2;
+            if even_correctFlag
+                even_missCheck = even_missCheck + 1;
+            end
+            if allright_flag
+               allright_missCheckEven = allright_missCheckEven + 1; 
+            end
         end 
         
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
-        if (perNum1>=100 && perNum2>=100 && iter>=10000)
+        if (PerNum1>=100 && PerNum2>=100 && iter>=10000)
             break;
         end
+        
     end
     iterNum(i) = iter;
     per(i) = (PerNum1+PerNum2)/(2*iter);

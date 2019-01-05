@@ -4,7 +4,7 @@ clear
 % 基本参数设置
 n = 8;  % 比特位数
 R = 0.5;    % 码率
-SNR = 2;
+SNR = 3.5;
 
 % 参数计算
 snr = 10.^(SNR/10);
@@ -14,7 +14,7 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_snr3p0db_2048_n_8.mat');   % load the channel information
+load('Pe_N256_snr3.2_R5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
