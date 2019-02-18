@@ -3,11 +3,11 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.5;    % 码率
+R = 0.25;    % 码率
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 
-SNR = 3.5;
+SNR = [0 1 2 3];
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
@@ -17,7 +17,7 @@ Kp = N*R*0.25;  % Cascaded decoding length
 k_f = N-K;% frozen_bits length
 % source_block = 2*k-k1;
 % frozen_block = 2*k_f;
-filename = 'Pe_N256_snr3.2_R5.mat'; 
+filename = 'Pe_N256_snr2.22_R2.5.mat'; 
 % get information bits and concatenated bits
 load(filename);   % load the channel information
 [Ptmp, I] = sort(P);
@@ -55,6 +55,11 @@ for i = 1:length(SNR)
     allright_missCheckOdd = 0;
     allright_missCheckEven = 0;
     while true
+        
+        odd_correctFlag = false;
+        even_correctFlag = false;
+        allright_flag = false;
+        
         iter = iter + 1;
         evenNum = (ReSC_evenWrong - ReSC_evenCorrect) + AllWrong;
         oddNum = (ReSC_oddWrong - ReSC_oddCorrect) + AllWrong;
@@ -154,9 +159,7 @@ for i = 1:length(SNR)
             break;
         end
         
-        odd_correctFlag = false;
-        even_correctFlag = false;
-        allright_flag = false;
+        
         
     end
     iterNum(i) = iter;
@@ -168,4 +171,8 @@ for i = 1:length(SNR)
     rs_evencorr(i) = ReSC_evenCorrect;
     all_right(i) = AllRight;
     all_wrong(i) = AllWrong;
+    odd_missCheckNum(i) = odd_missCheck;
+    even_missCheckNum(i) = even_missCheck;
+    allright_missCheckOddNum(i) = allright_missCheckOdd;
+    allright_missCheckEvenNum(i) = allright_missCheckEven;
 end
