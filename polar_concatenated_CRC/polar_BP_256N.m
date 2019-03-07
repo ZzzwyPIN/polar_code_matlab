@@ -3,8 +3,8 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.5;    % 码率
-SNR = 3.5;
+R = 0.25;    % 码率
+SNR = 2;
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 
@@ -20,7 +20,7 @@ K = floor(N*R);  % information bit length
 k_f = N - K;
 
 % get information bits and concatenated bits
-load('Pe_N256_SNR3.5_R5.mat');   % load the channel information
+load('Pe_N256_snr2.22_R2.5.mat');   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(K:-1:1));  % 挑选质量好的信道传输信息位
 frozen_index = sort(I(end:-1:K+1));   % 传输冻结位的信道
@@ -67,7 +67,7 @@ for i = 1:length(SNR)
             BerNum = BerNum + count;
         end
         
-        if (iter >= 1000)
+        if (iter >= 200)
             break;
         end
     end

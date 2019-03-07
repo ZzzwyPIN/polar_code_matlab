@@ -22,10 +22,11 @@ filename = 'Pe_N256_snr2.22_R2.5.mat';
 load(filename);   % load the channel information
 [Ptmp, I] = sort(P);
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
-info_without_crc = info_index(1:K-Ng);
+info_without_crc = info_index(1:K-Ng);  %得到K_{info}个信息位信道
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-[~,temp] = sort(P(info_without_crc));
-inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));
+
+[~,temp] = sort(P(info_without_crc));   %对K_{info}个信道再进行一次排序
+inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));    %取K_{info}中最差的K_p个信道
 clear temp;
 
 % get generate matrix
@@ -44,23 +45,27 @@ for i = 1:length(SNR)
     BerNum2 = 0;
     iter = 0;
     %counter the number of Re-SC decoding
+    % 以下参数用来记录每个SNR点，论文中提到的case1-case4发生次数
     ReSC_oddWrong = 0;
     ReSC_evenWrong = 0;
-    ReSC_oddCorrect = 0;
-    ReSC_evenCorrect = 0;
+    ReSC_oddCorrect = 0;    %odd block have correct new rounds of SC decoding
+    ReSC_evenCorrect = 0;   %even block have correct new rounds of SC decoding
     AllRight = 0;
     AllWrong = 0;
+    % 以下参数用下记录CRC校验出错的次数，即：CRC校验是正确的但是后面误组率统计却出错。
     even_missCheck = 0;
     odd_missCheck = 0;
     allright_missCheckOdd = 0;
     allright_missCheckEven = 0;
-    while true
-        
+    
+    while true 
         odd_correctFlag = false;
         even_correctFlag = false;
         allright_flag = false;
         
         iter = iter + 1;
+        
+        % 当出现CRC校验错误或者统计错误时直接跳出
         evenNum = (ReSC_evenWrong - ReSC_evenCorrect) + AllWrong;
         oddNum = (ReSC_oddWrong - ReSC_oddCorrect) + AllWrong;
         if (oddNum ~= PerNum1 || evenNum ~= PerNum2)
@@ -97,11 +102,12 @@ for i = 1:length(SNR)
         if ~isempty(find(receive_crc_bits1,1)) && isempty(find(receive_crc_bits2,1))
             % modify polar1 frozen_index frozen_bits info_index
             ReSC_oddWrong = ReSC_oddWrong + 1;
+            %将K_p mutual bits 当作冻结位处理（直接附在原冻结位后面即可）
             [frozen_index,frozen_bits] = modifyFrozenIndexAndBits(frozen_index,frozen_bits,info_without_crc,temp_index,decision_bits2);
             decision_bits1 = polarSC_decoder(n,receive_sample1,sigma,frozen_index,frozen_bits,info_index);
             if sum(crccheck(decision_bits1,poly)) == 0
                ReSC_oddCorrect =  ReSC_oddCorrect + 1;
-               odd_correctFlag = true;
+               odd_correctFlag = true;  %设置flag,即如果此处CRC结果表示Redecoding正确了，但是后面统计PER出错,odd_missCheck++
             end
         end
         
@@ -125,6 +131,7 @@ for i = 1:length(SNR)
             AllRight = AllRight + 1;
         end
         
+        % reset frozen_index and frozen_bits
         frozen_index = frozen_index(1:k_f);
         frozen_bits = frozen_bits(1:k_f);
         % situation 3 and 4: polar1 and polar2 are both right or wrong

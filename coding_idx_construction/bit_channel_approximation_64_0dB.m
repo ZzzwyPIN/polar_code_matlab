@@ -11,9 +11,9 @@ clc;clear;
 n=8; % coding level
 N = 2^n; % block length
 
-CHANNEL_TYPE = 0; % 0: AWGN, 1: BSC, 2: BEC
+CHANNEL_TYPE = 0; % 0: AWGN, 1: BSC, 2: BECc
 
-R = 0.75; % code rate 
+R = 0.2188; % code rate 
 K = floor(N * R); % # of inforamtion bits in one code block
 code_idx = zeros(1,K); % # of frozen bits in one code block
 frozen_idx = zeros(1,N-K);
@@ -46,7 +46,7 @@ end
 %yh: higher bound of y in a symbol
 if CHANNEL_TYPE == 0  
    %param
-   SNR = 4.6494; % in dB
+   SNR = 3.5; % in dB
    snr = 10^(SNR/10);
    esn0 = snr * R;
    sigma = (2*esn0)^-0.5;

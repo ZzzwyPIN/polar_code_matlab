@@ -3,7 +3,7 @@ clear
 
 % 基本参数设置
 n = 8;  % 比特位数
-R = 0.5;    % 码率
+R = 0.25;    % 码率
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 
@@ -25,11 +25,13 @@ k_f = N-K;% frozen_bits length
 rng('shuffle');
 for i = 1:length(SNR)
     
-    if SNR(i) == 3.5
-        filename = sprintf('Pe_N256_snr%1.1f_R5.mat',SNR(i));
-    else
-        filename = sprintf('Pe_N256_snr%d_R5.mat',SNR(i));
-    end
+    %R = 0.25
+    filename = 'Pe_N256_snr2.22_R2.5.mat';
+%     if SNR(i) == 3.5
+%         filename = sprintf('Pe_N256_snr%1.1f_R5.mat',SNR(i));
+%     else
+%         filename = sprintf('Pe_N256_snr%d_R5.mat',SNR(i));
+%     end
     
     % get information bits and concatenated bits
     load(filename);   % load the channel information
