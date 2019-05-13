@@ -1,57 +1,101 @@
-%High speed MATLAB codes
-
-%This propgramm use SCL with small list size as a "filter", i.e., under the
-%same noise realization, If CRC-SCL with smaller L is correct, then CRC-SCL
-%with larger L must be correct. You may not beleive in this conjecture, but you can have
-%a try, This is true with high probability (alomst 1)
-
-%This programma has another accelerator. If in lower snr, CRC-scl is correct, then at higher snr, 
-%the same CRC-scl must be correct.  You may not beleive in this conjecture, but you can have
-%a try, This is true with high probability (alomst 1).
-
-%I know above methods sound dangerous, but it is safe under following 4
-%conditions
-
-%1. The same code word
-%2. The same AWGN noise realization with distribution N(0, 1) 
-%3. CRC must be used (Only SCL is not permitted)
-%4. The same code construction in all SNR range.
-
-%This program satisfies above 4 conditions. You can verify the bler performance by comparisons with existing results. 
-
-%Since MATLAB is not good at recursive function (too many parameters to be passed)
-%I cancell the well-known recursiveCalcP() and recursiveCalcB() proposed by
-%I. Tal
-%Instead, 'For' function is used. You may argue that we can use objective
-%oriented (OO) style. However, OO in matlab is also slow.
-
-%Besides, the algotithms of following papers are provided.
-
-%How to Construct Polar Codes
-%Fast Successive-Cancellation Decoding of Polar Codes: Identification and Decoding of New Nodes
-%beta-expansion: A Theoretical Framework for Fast and Recursive Construction of Polar Codes
-
-%Above three algorithms are made by myself so the correctness is not guaranteed. 
-
-
+clc
 clear
-addpath('GA/')
-addpath('HowToConstructPolarCode/')
-addpath('NodeProcess/')
-addpath('BECconstruction/')
-addpath('PolarizaedChannelsPartialOrder/')
-%adding above folders will take round 2 seconds
 
-design_snr = 3.0;
-crc_length = 8;
-[gen, det] = get_crc_objective(crc_length);
-n = 8;
+% 基本参数设置
+n = 8;  % 比特位数
+R = 0.5;    % 码率
+Ng = 16;
+poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
+L = 8;   %SCL List
+
+SNR = [0 1 2 3];
+% 参数计算
+snr = 10.^(SNR/10);
+esn0 = snr * R;
 N = 2^n;
-K = 104 + crc_length;
-ebno_vec = [0 1 2 3 3.5 4]; %row vec, you can write it like [1 1.5 2 2.5 3] 
-list_vec = [1 8 32];    %row vec, you can write it like [1 4 16 32 ...]. The first element is always 1 for acceleration purpose. The ramaining elements are power of two.
-max_runs = 1e7;
-max_err = 100;
-resolution = 1e4;   %the results are shown per max_runs/resolution.
-[bler, ber] = simulation(N, K, design_snr, max_runs, max_err, resolution,  ebno_vec, list_vec, gen, det, crc_length);
 
+lambda_offset = 2.^(0 : log2(N));
+llr_layer_vec = get_llr_layer(N);
+bit_layer_vec = get_bit_layer(N);
+
+K = floor(N*R);  % information bit length
+Kp = floor(N*R*0.25);  % Cascaded decoding length
+k_f = N-K;% frozen_bits length
+
+
+%CRC
+% [gen, det] = get_crc_objective(Ng);
+% source_block = 2*k-k1;
+% frozen_block = 2*k_f;
+filename = 'Pe_N256_snr3.2_R5.mat'; 
+% get information bits and concatenated bits
+load(filename);   % load the channel information
+[Ptmp, I] = sort(P);
+info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
+info_without_crc = info_index(1:K-Ng);  %得到K_{info}个信息位信道
+frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
+inter_index = sort(I(K-Kp+1:K));
+
+%get CRC check
+% [~, ~, g] = get_crc_objective(Ng);
+% [G_crc, H_crc] = crc_generator_matrix(g, K - Ng);
+% crc_parity_check = G_crc(:, K - Ng + 1 : end)';
+rng('shuffle');
+for i = 1:length(SNR)
+    
+    sigma = (2*esn0(i))^(-0.5);
+    % set PER and BER counter
+    PerNum = 0;
+    BerNum = 0;
+
+    iter = 0;
+
+    
+    while true 
+        
+        iter = iter + 1;
+        % reset the frozen bits and mutual bits
+        frozen_bits = ones(N,1);
+        mutual_bits = zeros(N,1);
+        frozen_bits(info_index) = 0;
+        info_bits_logical = logical(mod(frozen_bits + 1, 2));
+        
+        
+       
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum,BerNum);
+        source_bit = rand(1,K-Ng)>0.5;
+
+        source_crc_bit = crcadd(source_bit,poly);
+        u = zeros(N, 1);
+
+        u(info_bits_logical) = source_crc_bit;
+        encode_temp = polar_encoder(u, lambda_offset, llr_layer_vec);
+    
+        % bpsk modulation
+        encode_temp = 1 - 2 * encode_temp;
+        % add noise
+        receive_sample = encode_temp + sigma * randn(size(encode_temp));
+        
+        llr = 2/sigma^2*receive_sample;
+
+        decision_bits = CASCL_decoder(llr, L, K, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec);
+        
+        count = sum(decision_bits' ~= source_crc_bit);
+        if count ~= 0
+            PerNum = PerNum + 1;
+            BerNum = BerNum + count;
+        end
+        
+
+        if (PerNum>=100 && iter>=10000)
+            break;
+        end
+        
+        
+        
+        
+    end
+    iterNum(i) = iter;
+    per(i) = PerNum/iter;
+    ber(i) = BerNum/(K*iter);
+end

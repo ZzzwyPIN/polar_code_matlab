@@ -1,20 +1,10 @@
-function [polar_info_esti, CRC_check] = CASCL_decoder(llr, L, K, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec, mutual_bits)%2018.1.7.14:16 Yu Y. R.
+function polar_info_esti = CASCL_decoder(llr, L, K, frozen_bits, H_crc, lambda_offset, llr_layer_vec, bit_layer_vec)%2018.1.7.14:16 Yu Y. R.
 %LLR-based SCL deocoder, a single function, no other sub-functions.
 %Frequently calling sub-functions will derease the efficiency of MATLAB
 %codes.
 %const
-
-%%%%%%%%%%%  Look at here!  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%在您的程序基础上，我稍微做了几点小修改：
-%%%1、添加了CRC校验flag，并输出。如果CA_SCL decoder是通过了CRC校验并输出译码结果的，那么就将CRC_check置1输出
-%%%2、添加了一个参数mutual_bits，是一个N*1大小的数组，其中相应位置存储着本次译码中，可视为冻结位比特的信息位集合。
-%%%3、修改了frozen_bits;原frozen_bits里面冻结位不变，仍为1，信息位中，属于mutual_bits对应的比特位置，全部设置为2.
-%主要修改的代码请看145-180行
-
 N = length(llr);
 m = log2(N);
-%CRC_flag
-CRC_check = 0;
 %memory declared
 lazy_copy = zeros(m, L);%If Lazy Copy is used, there is no data-copy in the decoding process. We only need to record where the data come from. Here,data refer to LLRs and partial sums.
 %Lazy Copy is a relatively sophisticated operation for new learners of polar codes. If you do not understand such operation, you can directly copy data.
@@ -142,48 +132,20 @@ for phi = 0 : N - 1
             end
         end
         cnt_u = cnt_u + 1;
-    elseif frozen_bits(phi+1) == 1%frozen bit operation
+    else%frozen bit operation
         for l_index = 1 : L
             if activepath(l_index) == 0
                 continue;
             end
-            if P(1, l_index) < 0 % LLR < 0 判决ui = 1 ~= frozen_bit
+            if P(1, l_index) < 0
                 PM(l_index) = PM(l_index) - P(1, l_index);
             end
             if phi_mod_2 == 0
-                %%% add mutual bits here
                 C(1, 2 * l_index - 1) = 0;
             else
                 C(1, 2 * l_index) = 0;
             end 
         end
-        %%%%%主要修改部分如下：
-    elseif frozen_bits(phi+1) == 2  %当前译码比特为 mutual_bits
-        %%%%%%%error here!
-        for l_index = 1 : L
-            if activepath(l_index) == 0
-                continue;
-            end
-%             disp(mutual_bits(inter_index()));
-            nowbit = mutual_bits(phi+1);%取出当前mutual_bit
-            %直接对u赋值
-            u(cnt_u, l_index) = nowbit;
-            % 做判决，如果P(1, l_index)<0，判决值为1，但是mutual_bit为0，那么更新PM = PM + |L|
-            if P(1, l_index) < 0 && ~nowbit
-                PM(l_index) = PM(l_index) - P(1, l_index);
-            end
-            % 做判决，如果P(1, l_index)>0，判决值为0，但是mutual_bit为1，那么更新PM = PM + |L|
-            if P(1, l_index) > 0 && nowbit
-                PM(l_index) = PM(l_index) + P(1, l_index);
-            end
-            if phi_mod_2 == 0
-                %%% add mutual bits here
-                C(1, 2 * l_index - 1) = nowbit;
-            else
-                C(1, 2 * l_index) = nowbit;
-            end
-        end
-        cnt_u = cnt_u + 1;
     end 
     
     for l_index = 1 : L%partial-sum return
@@ -222,16 +184,14 @@ end
 for l_index = 1 : L
     path_num = path_ordered(l_index);
     info_with_crc = u(:, path_num);
-    err = sum(crccheck(info_with_crc',poly));
-%     err = sum(mod(H_crc * info_with_crc, 2));
+    err = sum(mod(H_crc * info_with_crc, 2));
     if err == 0
         polar_info_esti = u(:, path_num);
-        CRC_check = 1;
         break;
     else
         if l_index == L
             polar_info_esti = u(:, path_ordered(1));
         end
     end
-end
+end 
 end
