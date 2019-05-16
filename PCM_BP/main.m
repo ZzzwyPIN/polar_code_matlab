@@ -26,7 +26,7 @@ rng('shuffle');
 for i = 1:length(SNR)
     
     %R = 0.25
-    filename = 'Pe_N256_snr3.2_R5.mat';
+%     filename = 'Pe_N256_snr3.2_R5.mat';
 %     if SNR(i) == 3.5
 %         filename = sprintf('Pe_N256_snr%1.1f_R5.mat',SNR(i));
 %     else
@@ -34,14 +34,14 @@ for i = 1:length(SNR)
 %     end
     
     % get information bits and concatenated bits
+    filename = 'GA_N1024_R5_snr3.2.mat';
+    % get information bits and concatenated bits
     load(filename);   % load the channel information
-    [Ptmp, I] = sort(P);
+    [Ptmp, I] = sort(P,'descend');
     info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
-    info_without_crc = info_index(1:K-Ng);
+    info_without_crc = info_index(1:K-Ng);  %得到K_{info}个信息位信道
     frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-    [~,temp] = sort(P(info_without_crc));
-    inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));
-    clear temp;
+    inter_index = sort(I(K-Kp+1:K));
     
     % get generate matrix
     G = encoding_matrix(n);

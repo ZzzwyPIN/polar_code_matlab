@@ -2,7 +2,7 @@
 clear
 
 % 基本参数设置
-n = 8;  % 比特位数
+n = 10;  % 比特位数
 R = 0.5;    % 码率
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
@@ -17,24 +17,21 @@ Kp = N*R*0.25;  % Cascaded decoding length
 k_f = N-K;% frozen_bits length
 % source_block = 2*k-k1;
 % frozen_block = 2*k_f;
-filename = 'Pe_N256_snr3.2_R5.mat'; 
+filename = 'GA_N1024_R5_snr3.2.mat';
 % get information bits and concatenated bits
 load(filename);   % load the channel information
-[Ptmp, I] = sort(P);
+[Ptmp, I] = sort(P,'descend');
 info_index = sort(I(1:K));  % 挑选质量好的信道传输信息位
 info_without_crc = info_index(1:K-Ng);  %得到K_{info}个信息位信道
 frozen_index = sort(I(K+1:end));   % 传输冻结位的信道
-
-% [~,temp] = sort(P(info_without_crc));   %对K_{info}个信道再进行一次排序
 inter_index = sort(I(K-Kp+1:K));
-% inter_index = sort(info_without_crc(temp(end:-1:end-Kp+1)));    %取K_{info}中最差的K_p个信道
-% clear temp;
+
 
 % get generate matrix
 G = encoding_matrix(n);
 Gi = G(info_index,:);
 Gf = G(frozen_index,:);
-frozen_bits = randi([0 1],1,k_f);
+frozen_bits = zeros(1,k_f);
 
 rng('shuffle');
 for i = 1:length(SNR)
