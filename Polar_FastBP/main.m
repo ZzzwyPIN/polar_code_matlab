@@ -4,17 +4,13 @@ clear
 % 基本参数设置
 n = 10;  % 比特位数
 R = 0.4375;    % 码率
-SNR = [1 2 3 4];
+SNR = [1 2 3 3.5 4];
 init_lr_max = 3;    % limit the max LR of the channel to be with [-3 3]
 max_iter = 40;
 
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
-init_max = init_lr_max * n;
-if init_max > 30
-    init_max = 30;
-end
 N = 2^n;
 K = floor(N*R);  % information bit length
 k_f = N - K;

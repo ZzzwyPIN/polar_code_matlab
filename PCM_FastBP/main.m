@@ -8,7 +8,7 @@ R = 0.5;    % 码率
 Ng = 16; %CRC bit length
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 
-SNR = [1 2 3 4];
+SNR = [1 2 3 3.5];
 max_iter = 40;
 
 % 参数计算
@@ -73,7 +73,7 @@ for i = 1:length(SNR)
         u1(info_index) = source_crc_bit1;
         u2(info_index) = source_crc_bit2;
         encode_temp1 = polar_encoder(u1, lambda_offset, llr_layer_vec);
-        encode_temp2 = polar_encoder(u1, lambda_offset, llr_layer_vec);
+        encode_temp2 = polar_encoder(u2, lambda_offset, llr_layer_vec);
     
         % bpsk modulation
         encode_temp1 = 1 - 2*encode_temp1;
@@ -132,7 +132,7 @@ for i = 1:length(SNR)
             BerNum2 = BerNum2 + count2;
         end
         
-        if (PerNum1>=100 && PerNum2>=100 && iter>=1000)
+        if (PerNum1>=100 && PerNum2>=100 && iter>=10000)
             break;
         end
     end
@@ -146,3 +146,8 @@ for i = 1:length(SNR)
     all_right(i) = AllRight;
     all_wrong(i) = AllWrong;
 end
+
+% record files
+path = './results/';
+filename = [path, 'PCM_FastBP_N',num2str(N),'_R',num2str(R),'.mat'];
+save(filename)
