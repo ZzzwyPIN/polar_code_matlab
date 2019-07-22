@@ -1,6 +1,6 @@
-function [bler, ber] = simulation(N, K, design_epsilon, max_runs, max_err, resolution, ebno_vec, list_size_vec, gen, det, g, crc_length)
+function [bler, ber] = simulation(N, K, design_epsilon, max_runs, max_err, resolution, ebno_vec, list_size_vec,crc_length,g)
 %effective rate of concatenated codes
-R = (K - crc_length)/N;
+R = 0.4531;
 
 %codes parameters to avoid redundant calcularions
 lambda_offset = 2.^(0 : log2(N));
@@ -40,13 +40,13 @@ info_bits_logical = logical(mod(frozen_bits + 1, 2));
 % frozen_bits(info_bits) = 0;
 
 %Special nodes
-node_type_matrix = get_node_structure(frozen_bits);
+% node_type_matrix = get_node_structure(frozen_bits);
 
 
 %Results Stored
 bler = zeros(length(ebno_vec), length(list_size_vec));
 num_runs = zeros(length(ebno_vec), length(list_size_vec));
-ber = 0;
+ber = zeros(length(ebno_vec), length(list_size_vec));
 %Loop starts
 tic
 % profile on
@@ -61,9 +61,19 @@ for i_run = 1 : max_runs
         disp('The remaining columns are the BLERs of CA-SCL you desired');
         disp(num2str([ebno_vec'  bler./num_runs]));
         disp(' ')
+        
+        disp(' ');
+        disp(['Sim iteration running = ' num2str(i_run)]);
+        disp(['N = ' num2str(N) ' K = ' num2str(K)]);
+        disp(['List size = ' num2str(list_size_vec)]);
+        disp('The first column is the Eb/N0');
+        disp('The second column is the BER of SC.');
+        disp('The remaining columns are the BLERs of CA-SCL you desired');
+        disp(num2str([ebno_vec'  ber./num_runs/K]));
+        disp(' ')
     end
     %To avoid redundancy
-    info  = rand(K - crc_length, 1) > 0.5;
+    info  = rand(K-crc_length , 1) > 0.5;
     info_with_crc = [info; mod(crc_parity_check * info, 2)];
     u = zeros(N, 1);
     u(info_bits_logical) = info_with_crc;
@@ -73,6 +83,7 @@ for i_run = 1 : max_runs
     prev_decoded = zeros(length(ebno_vec), length(list_size_vec));
     for i_ebno = 1 : length(ebno_vec)
         sigma = 1/sqrt(2 * R) * 10^(-ebno_vec(i_ebno)/20);
+        %sqrt(2*R*10.^(SNR/10))
         y = bpsk + sigma * noise;
         llr = 2/sigma^2*y;
         for i_list = 1 : length(list_size_vec)
@@ -105,6 +116,7 @@ for i_run = 1 : max_runs
             
             if any(polar_info_esti ~= info_with_crc)
                 bler(i_ebno, i_list) = bler(i_ebno, i_list) + 1;
+                ber(i_ebno, i_list) = ber(i_ebno, i_list) + sum(polar_info_esti ~= info_with_crc);
             else
                 prev_decoded(i_ebno, i_list) = 1;
             end

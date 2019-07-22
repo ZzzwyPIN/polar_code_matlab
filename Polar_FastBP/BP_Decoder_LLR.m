@@ -1,4 +1,4 @@
-function [info_esti, denoised_llr, error, iter_this_time] = BP_Decoder_LLR(info_bits, frozen_bits, llr, max_iter, M_right_up, M_right_down)
+function [info_esti, denoised_llr, error, iter_this_time] = BP_Decoder_LLR(info_bits, frozen_bits, llr, max_iter, M_right_up, M_right_down,mutual_bits)
 N = length(frozen_bits);
 n = log2(N);
 R = zeros(N, n + 1);
@@ -8,6 +8,8 @@ internal_bits = zeros(N, n + 1);
 for i = 1:N
     if frozen_bits(i) == 1
         R(i, 1) = realmax;
+    elseif frozen_bits(i) == 2
+        R(i, 1) = (1-2*mutual_bits(i))*realmax;
     end
 end
 %Initialize L

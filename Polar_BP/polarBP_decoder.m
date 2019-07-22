@@ -9,6 +9,7 @@ for idx = 1:max_iter
     % LR from Right to Left like a flood first
     rel_mat_RtoL = polar_bp_RtoL(lr_u, lr_x, rel_mat_LtoR, n);
     % Now LR from Left to right
+   
     % Note that intrinsic information can't send to right again!
     rel_mat_LtoR = polar_bp_LtoR(lr_x, lr_u, rel_mat_RtoL, n);
 end

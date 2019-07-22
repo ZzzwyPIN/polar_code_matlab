@@ -1,10 +1,9 @@
-function polar_info_esti = SC_decoder(llr, K, frozen_bits, lambda_offset, llr_layer_vec, bit_layer_vec,mutual_bits)
+function polar_info_esti = SC_decoder(llr, info_index, frozen_bits, lambda_offset, llr_layer_vec, bit_layer_vec,mutual_bits)
 N = length(llr);%llr refers to channel LLR.
 n = log2(N);
 P = zeros(N - 1, 1);%channel llr is not include in P. the length of P is len = 2^(n-1)+2^(n-2)+...+2^0;
 C = zeros(N - 1, 2);%C stores internal bit values
-polar_info_esti = zeros(K, 1);
-cnt_K = 1;
+esti = zeros(N, 1);
 for phi = 0 : N - 1
     switch phi
         case 0%for decoding u_1
@@ -51,13 +50,11 @@ for phi = 0 : N - 1
         C(1, 1 + phi_mod_2) = 0;
     elseif frozen_bits(phi + 1) == 0%information bit
         C(1, 1 + phi_mod_2) = P(1) < 0;%store internal bit values
-        polar_info_esti(cnt_K) = P(1) < 0;
-        cnt_K = cnt_K + 1;
+        esti(phi + 1) = P(1) < 0;
     else
         now_bit = mutual_bits(phi+1);
         C(1, 1 + phi_mod_2) = now_bit;
-        polar_info_esti(cnt_K) = now_bit;
-        cnt_K = cnt_K + 1;
+        esti(phi + 1) = now_bit;
     end
     if phi_mod_2  == 1 && phi ~= N - 1
         bit_layer = bit_layer_vec(phi + 1);
@@ -77,4 +74,5 @@ for phi = 0 : N - 1
         end
     end
 end
+polar_info_esti = esti(info_index);
 end
