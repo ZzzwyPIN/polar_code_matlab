@@ -4,10 +4,10 @@ clear
 % 基本参数设置
 n = 9;  % 比特位数
 N = 2^n;
-M = 140;
+M = 256+12;
 Ng = 12;
-Kp = 2:2:32;
-SNR = 3.5;
+Kp = 42;
+SNR = [1 2 3 3.5 4];
 snr = 10.^(SNR/10);
 lambda_offset = 2.^(0 : log2(N));
 llr_layer_vec = get_llr_layer(N);
