@@ -43,7 +43,7 @@ Ng = 12;
 poly = [1 1 1 1 1 0 0 0 1 0 0 1 1];
 n = 10;  % you should change the channel parameter simutaneously
 N = 2^n;
-K = 512+12;
+M = 512+12;
 Kp = 74;
 ebno_vec = [1 2 2.5 3 3.5]; %row vec, you can write it like [1 1.5 2 2.5 3] 
 list_vec = [1 2 4 8];  %row vec, you can write it like [1 4 16 32 ...]. The first element is always 1 for acceleration purpose. The ramaining elements are power of two.
@@ -52,5 +52,5 @@ max_err = 100;
 resolution = 1e4;%the results are shown per max_runs/resolution.
 
 load('Pe_N1024_snr3_R5.mat');
-[bler, ber] = simulation(N, K, Kp, max_runs, max_err, P, resolution, ebno_vec, list_vec,Ng, poly);
+[bler, ber] = simulation(N, M, Kp, max_runs, max_err, P, resolution, ebno_vec, list_vec,Ng, poly);
 
