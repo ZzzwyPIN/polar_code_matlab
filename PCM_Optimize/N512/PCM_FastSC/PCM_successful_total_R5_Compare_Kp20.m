@@ -2,21 +2,21 @@ clc
 clear
 
 % 基本参数设置
-n = 8;  % 比特位数 
+n = 9;  % 比特位数 
 N = 2^n;
 Ng = 12;
 poly = [1 1 1 1 1 0 0 0 1 0 0 1 1];
 
 
-K = 140;
-Kinfo = 128;
-Kp = 24;
+K = 256+12;
+Kinfo = 256;
+Kp = 20;
 
 % Kpure = K-Ng-Kp;
 k_f = N-K;% frozen_bits length
 % R = K/N;
 
-SNR = 4;
+SNR = 3.5;
 % 参数计算
 snr = 10.^(SNR/10);
 % esn0 = snr * R;
@@ -35,7 +35,7 @@ for i = 1:length(Kp)
     Kpure = K-Ng-Kp(i);
     R = (K-Ng-Kp(i)/2)/N;
     
-    load('Pe_N256_snr3.2_R5.mat');
+    load('Pe_N512_snr3_R5.mat');
     [~, I] = sort(P);
     pure_index = I(1:Kpure);
     inter_index = I(K-Kp(i)+1:K);

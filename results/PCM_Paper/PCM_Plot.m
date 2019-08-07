@@ -7,9 +7,9 @@ load('PCM_K140_CRC12_Kp24_R4531.mat');
 
 
 figure
-semilogy(SNR,berSC,'k-+',SNR,berBP,'k-*',SNR_SCL,berSCL2,'k-s',SNR_SCL,berSCL4,'k-^');
+semilogy(SNR,berSC,'b-+',SNR,berBP,'k-*',SNR_SCL,berSCL2,'r-s',SNR_SCL,berSCL4,'m-^');
 hold on
-semilogy(SNR_PCM(1:4),berPCM_SC,'k-o',SNR_PCM(1:4),berPCM_BP,'k-p');
+semilogy(SNR_PCM(1:4),berPCM_SC,'k-o',SNR_PCM(1:4),berPCM_BP,'b-p');
 xlabel('$E_b/N_0$ (dB)','interpreter','Latex');
 ylabel('BER','interpreter','Latex');
 axis([1 4.5 1.0e-5 1])
@@ -22,9 +22,9 @@ grid on
 % perNewMin = (1+alpha_c).*P_B.^2 - alpha_c.*P_B.^3;
 
 figure
-semilogy(SNR,perSC,'k-+',SNR,perBP,'k-*',SNR_SCL,perSCL2,'k-s',SNR_SCL,perSCL4,'k-^');%
+semilogy(SNR,perSC,'b-+',SNR,perBP,'k-*',SNR_SCL,perSCL2,'r-s',SNR_SCL,perSCL4,'m-^');%
 hold on
-semilogy(SNR_PCM,perPCM_SC,'k-o',SNR_PCM,perPCM_BP,'k-p');%
+semilogy(SNR_PCM,perPCM_SC,'k-o',SNR_PCM,perPCM_BP,'b-p');%
 xlabel('$E_b/N_0$ (dB)','interpreter','Latex');
 ylabel('PER','interpreter','Latex');
 axis([1 4.5 1.0e-4 1])

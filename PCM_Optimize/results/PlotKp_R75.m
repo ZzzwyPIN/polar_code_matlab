@@ -21,7 +21,7 @@ grid on;
 %% The PER of PCM for variable Kp under the Eb/N0=4.5 dB. N=512 R=0.75
 clear
 clc
-load('Optimal_PCM_N512_Kp2t4t192_snr4d5_R75.mat');
+load('Optimal_PCM_N512_Kp2t2t100_snr4d5_R75.mat');
 figure
 semilogy(Kp,per,'k-*');
 xlabel('$K_{\mathrm{p}}$','interpreter','Latex');
@@ -45,12 +45,12 @@ figure
 semilogy(Kp,per,'k-*');
 xlabel('$K_{\mathrm{p}}$','interpreter','Latex');
 ylabel('PER','interpreter','Latex');
-% axis([0 64 1e-04 1e-02]);
+axis([40 184 7.0e-04 2.0e-03]);
 grid on;
 
 figure
 plot(Kp,Rate,'r-o');
 xlabel('$K_{\mathrm{p}}$','interpreter','Latex');
 ylabel('Rate','interpreter','Latex');
-% axis([0 64 3e-04 1e-02]);
+axis([40 184 0 5]);
 grid on;

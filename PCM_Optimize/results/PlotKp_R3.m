@@ -45,12 +45,12 @@ figure
 semilogy(Kp,per,'k-*');
 xlabel('$K_{\mathrm{p}}$','interpreter','Latex');
 ylabel('PER','interpreter','Latex');
-% axis([0 64 1e-04 1e-02]);
+axis([0 110 5.0e-04 3.0e-03]);
 grid on;
 
 figure
 plot(Kp,Rate,'r-o');
 xlabel('$K_{\mathrm{p}}$','interpreter','Latex');
 ylabel('Rate','interpreter','Latex');
-% axis([0 64 3e-04 1e-02]);
+axis([0 120 0 8]);
 grid on;

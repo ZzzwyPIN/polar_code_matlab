@@ -10,7 +10,7 @@ poly = [1 1 1 1 1 0 0 0 1 0 0 1 1];
 
 K = 256+12;
 Kinfo = 256;
-Kp = 2:2:128;
+Kp = 42;
 
 % Kpure = K-Ng-Kp;
 k_f = N-K;% frozen_bits length
