@@ -1,46 +1,19 @@
-function [bler, ber] = simulation(N, K, max_runs, max_err, resolution, ebno_vec, list_size_vec,crc_length,g)
+function [bler, ber] = simulation(N, M, Kp, max_runs, max_err, P, resolution, ebno_vec, list_size_vec,Ng,poly)
 %effective rate of concatenated codes
-R = (K)/N;
+R = (M-Ng-Kp/2)/N;
+K = M-Kp/2;
 
 %codes parameters to avoid redundant calcularions
 lambda_offset = 2.^(0 : log2(N));
 llr_layer_vec = get_llr_layer(N);
 bit_layer_vec = get_bit_layer(N);
 
-
-%Self-made CRC check
-[G_crc, H_crc] = crc_generator_matrix(g, K - crc_length);
-crc_parity_check = G_crc(:, K - crc_length + 1 : end)';
-
-%Bhattacharyya Code (BEC) Construction
-% channels = get_BEC_IWi(N, 1 - design_epsilon);
-% [~, channel_ordered] = sort(channels, 'descend');
-% info_bits = sort(channel_ordered(1 : K), 'ascend');
-% frozen_bits = ones(N , 1);
-% frozen_bits(info_bits) = 0;
-% info_bits_logical = logical(mod(frozen_bits + 1, 2));
-% search_index = get_search_index(info_bits, K, log2(N))
-
-%Gaussian approximation Code Construction
-design_snr = 2.5;
-sigma_cc = 1/sqrt(2 * R) * 10^(-design_snr/20);
-[channels, ~] = GA(sigma_cc, N);
-[~, channel_ordered] = sort(channels, 'descend');
+%channel sorting
+[~, channel_ordered] = sort(P);
 info_bits = sort(channel_ordered(1 : K), 'ascend');
 frozen_bits = ones(N , 1);
 frozen_bits(info_bits) = 0;
 info_bits_logical = logical(mod(frozen_bits + 1, 2));
-
-%beta expansion
-% beta = sqrt(sqrt(2));
-% channels = beta_expansion_polar_code_construction(N, beta);
-% [~, channel_ordered] = sort(channels, 'descend');
-% info_bits = sort(channel_ordered(1 : K));
-% frozen_bits = ones(N , 1);
-% frozen_bits(info_bits) = 0;
-
-%Special nodes
-% node_type_matrix = get_node_structure(frozen_bits);
 
 
 %Results Stored
@@ -73,8 +46,9 @@ for i_run = 1 : max_runs
         disp(' ')
     end
     %To avoid redundancy
-    info  = rand(K-crc_length , 1) > 0.5;
-    info_with_crc = [info; mod(crc_parity_check * info, 2)];
+    info  = rand(K-Ng , 1) > 0.5;
+    info_with_crc = crcadd(info',poly);
+    info_with_crc = info_with_crc';
     u = zeros(N, 1);
     u(info_bits_logical) = info_with_crc;
     x = polar_encoder(u, lambda_offset, llr_layer_vec);
@@ -111,7 +85,7 @@ for i_run = 1 : max_runs
             if list_size_vec(i_list) == 1
                 polar_info_esti = SC_decoder(llr, K, frozen_bits, lambda_offset, llr_layer_vec, bit_layer_vec);
             else
-                polar_info_esti = CASCL_decoder(llr, list_size_vec(i_list), K, frozen_bits, H_crc, lambda_offset, llr_layer_vec, bit_layer_vec);
+                polar_info_esti = CASCL_decoder(llr, list_size_vec(i_list), K, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec);
             end
             
             if any(polar_info_esti ~= info_with_crc)
@@ -124,6 +98,8 @@ for i_run = 1 : max_runs
         end
     end
 end
+ber = ber./num_runs/K;
+bler = bler./num_runs;
 % profile viewer
 toc
 end

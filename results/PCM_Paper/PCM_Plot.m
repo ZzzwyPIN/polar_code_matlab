@@ -94,7 +94,7 @@ SNR = [1 2 3 4 4.5];
 semilogy(SNR,P_B,'k--',SNR,Additional_rate,'k-o',SNR,Additional_success_rate,'k-*');
 xlabel('$E_b/N_0$ (dB)','interpreter','Latex');
 ylabel('Rate','interpreter','Latex')
-legend('$P_B$','Additional Decoding Rate','Additional Success Rate','interpreter','Latex');
+legend('$\mathrm{P}_\mathrm{B}$','额外解码率','额外解码成功率','interpreter','Latex');
 axis([2 4.5 1e-03 1]);
 grid on
 

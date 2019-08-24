@@ -33,21 +33,24 @@
  
 %Above three algorithms are made by myself so the correctness is not guaranteed. 
 
-
-
+%Modify by zwy in 07/27/2019
+%Come from yu yong run
 
 clear
-addpath('GA/')
+clc
 
-crc_length = 12;
-[gen, det, g] = get_crc_objective(crc_length);
-n = 8;
+Ng = 12;
+poly = [1 1 1 1 1 0 0 0 1 0 0 1 1];
+n = 8;  % you should change the channel parameter simutaneously
 N = 2^n;
-K = 128;
-ebno_vec = [1 1.5 2 2.5 3 3.5 4]; %row vec, you can write it like [1 1.5 2 2.5 3] 
+M = 128+12;
+Kp = 0;
+ebno_vec = [1 2 3 3.5 4]; %row vec, you can write it like [1 1.5 2 2.5 3] 
 list_vec = [1 2 4 8];  %row vec, you can write it like [1 4 16 32 ...]. The first element is always 1 for acceleration purpose. The ramaining elements are power of two.
 max_runs = 1e7;
 max_err = 100;
 resolution = 1e4;%the results are shown per max_runs/resolution.
-[bler, ber] = simulation(N, K, max_runs, max_err, resolution, ebno_vec, list_vec,crc_length,g);
+
+load('Pe_N256_snr3.2_R5.mat');
+[bler, ber] = simulation(N, M, Kp, max_runs, max_err, P, resolution, ebno_vec, list_vec,Ng, poly);
 
