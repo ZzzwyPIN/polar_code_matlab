@@ -8,7 +8,7 @@
 
 %%
 clc;clear;
-n = 9; % coding level
+n = 10; % coding level
 N = 2^n; % block length
 
 CHANNEL_TYPE = 0; % 0: AWGN, 1: BSC, 2: BECc

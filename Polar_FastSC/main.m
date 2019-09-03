@@ -1,48 +1,37 @@
 clc
 clear
-addpath('../GA/')
 
 % 基本参数设置
-n = 8;  % 比特位数
-R = 0.4531;    % 码率
-SNR = [1 2 3 4 4.5];
+n = 10;  % 比特位数
+R = 0.5;    % 码率
+SNR = [1 2 3 3.5 4];
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
 N = 2^n;
 
+K = floor(N*R);  % information bit length
+k_f = N-K;% frozen_bits length
+
+load('Pe_N1024_snr2.mat');
+[~, I] = sort(P);
+info_index = I(1:K);
+% reset the frozen bits and mutual bits
+frozen_bits = ones(N,1);
+frozen_bits(info_index) = 0;% 挑选质量好的信道传输信息位
+
 lambda_offset = 2.^(0 : log2(N));
 llr_layer_vec = get_llr_layer(N);
 bit_layer_vec = get_bit_layer(N);
-K = 116;  % information bit length
-k_f = N-K;% frozen_bits length
 
 
-
-% % filename = 'GA_N1024_R5_snr3.2.mat'; 
-% filename = 'Pe_N256_snr3.2_R5.mat';
-% % get information bits and concatenated bits
-% load(filename);   % load the channel information
-% [~, I] = sort(P);
-% info_index = I(1:K);
-% % reset the frozen bits and mutual bits
-% frozen_bits = ones(N,1);
-% frozen_bits(info_index) = 0;% 挑选质量好的信道传输信息位
 
 rng('shuffle');
 for i = 1:length(SNR)
     
     sigma = (2*esn0(i))^(-0.5);
     
-    % filename = 'GA_N1024_R5_snr3.2.mat'; 
-    
-    % get information bits and concatenated bits
-    P = GA(sigma,N);
-    [~, I] = sort(P,'descend');
-    info_index = I(1:K);
-    % reset the frozen bits and mutual bits
-    frozen_bits = ones(N,1);
-    frozen_bits(info_index) = 0;% 挑选质量好的信道传输信息位
+   
 
     % set PER and BER counter
     PerNum = 0;
@@ -94,6 +83,6 @@ for i = 1:length(SNR)
 end
 
 % recording the results
-path = './results/';
-filename = [path, 'Polar_FastSC_N',num2str(N),'_R',num2str(R),'.mat'];
-save(filename)
+% path = './results/';
+% filename = [path, 'Polar_FastSC_N',num2str(N),'_R',num2str(R),'.mat'];
+% save(filename)

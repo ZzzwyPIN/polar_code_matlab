@@ -1,48 +1,43 @@
 clc
 clear
-addpath('../GA/');
 
 % 基本参数设置
-n = 8;  % 比特位数 
+n = 10;  % 比特位数 
 N = 2^n;
 Ng = 12;
 poly = [1 1 1 1 1 0 0 0 1 0 0 1 1];
 % L = 8;   %SCL List
 % Kinfo = 128;
-Kp = 24;
+Kp = 74;
 
-K = 140;
-Kinfo = 128;
+K = 561;
+Kinfo = 549;
 Kpure = Kinfo-Kp;
 k_f = N-K;% frozen_bits length
-R = 0.4531;
+R = (K - Ng - Kp/2) / N;
 
-SNR = [1 2 3 4 4.5];
+SNR = [1 2 3 3.5 4];
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
-N = 2^n;
+
+load('Pe_N1024_snr2.mat');
+[~, I] = sort(P);
+pure_index = I(1:Kpure);
+inter_index = I(K-Kp+1:K);
+crc_index = I(Kpure+1:K-Kp);
+info_index = [pure_index inter_index crc_index];
+frozen_index = I(K+1:end);   % 传输冻结位的信道
 
 lambda_offset = 2.^(0 : log2(N));
 llr_layer_vec = get_llr_layer(N);
 bit_layer_vec = get_bit_layer(N);
 
-
-
-
 rng('shuffle');
 for i = 1:length(SNR)
     
     sigma = (2*esn0(i))^(-0.5);
-    
-    P = GA(sigma,N);
-    [~, I] = sort(P,'descend');
-    pure_index = I(1:Kpure);
-    inter_index = I(K-Kp+1:K);
-    crc_index = I(Kpure+1:K-Kp);
-    info_index = [pure_index inter_index crc_index];
-    frozen_index = I(K+1:end);   % 传输冻结位的信道
- 
+
     % set PER and BER counter
     PerNum1 = 0;
     BerNum1 = 0;
