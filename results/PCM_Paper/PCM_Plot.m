@@ -1,4 +1,23 @@
+%%
+clear
+clc
 
+load('PCM_N1024_Kp74_R5.mat')
+figure
+semilogy(SNR,berSC,'k-+',SNR,berPCM,'r-*');
+xlabel('$E_b/N_0$ (dB)','interpreter','Latex');
+ylabel('BER','interpreter','Latex');
+% axis([1 4.5 1.0e-5 1])
+legend('SC','PCM-SC-2','interpreter','Latex');
+grid on
+
+figure
+semilogy(SNR,perSC,'k-+',SNR,perPCM,'r-*');
+xlabel('$E_b/N_0$ (dB)','interpreter','Latex');
+ylabel('PER','interpreter','Latex');
+% axis([1 4.5 1.0e-5 1])
+legend('SC','PCM-SC-2','interpreter','Latex');
+grid on
 
 %%
 clear
