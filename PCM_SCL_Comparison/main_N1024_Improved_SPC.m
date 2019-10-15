@@ -9,11 +9,11 @@ n = 10;  % 比特位数
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 8;   %SCL List
-K = 528; %the number of information bits of the underlying blocks
+K = 548; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
 block_num = 2;
 init_max = 3;
-SNR = 0.5:0.5:3.5;
+SNR = 0.5:0.5:3;
 
 %Compute the parameters
 N = 2^n;
@@ -51,8 +51,10 @@ for i = 1:length(SNR)
     
     sigma = (2*esn0(i))^(-0.5);
     % set PER and BER counter
-    PerNum = 0;
-    BerNum = 0;
+    PerNum1 = 0;
+    BerNum1 = 0;
+    PerNum2 = 0;
+    BerNum2 = 0;
     iter = 0;
     %counter the number of Re-SC decoding
     % 以下参数用来记录每个SNR点，论文中提到的case1-case4发生次数
@@ -66,7 +68,8 @@ for i = 1:length(SNR)
     while true 
         
         iter = iter + 1;
-        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum: %2d\tNow Error Bits: %2d', iter, SNR(i), PerNum, BerNum);
+        
+        fprintf('\nNow iter: %2d\tNow SNR: %d\tNow PerNum1: %2d\tNow PerNum2: %2d\tNow Error Bits: %2d', iter, SNR(i),PerNum1,PerNum2,BerNum1+BerNum2);
         
         %Generation of the source bits
         codeword = zeros(N,block_num);
@@ -156,13 +159,18 @@ for i = 1:length(SNR)
         end
         
         % calculate BER and PER
-        count = sum(decision_bits ~= Xa_crc, 'all');
-        if count ~= 0
-            PerNum = PerNum + 1;
-            BerNum = BerNum + count;
+        count1 = sum(decision_bits(1,:) ~= Xa_crc(1,:));
+        if count1 ~= 0
+            PerNum1 = PerNum1 + 1;
+            BerNum1 = BerNum1 + count1;
+        end
+        count2 = sum(decision_bits(2,:) ~= Xa_crc(2,:));
+        if count2 ~= 0
+            PerNum2 = PerNum2 + 1;
+            BerNum2 = BerNum2 + count2;
         end
         
-        if (PerNum>=100 && iter>=10000)
+        if (PerNum1>=100 && PerNum2>=100 && iter>=10000)
             break;
         end
         
@@ -172,8 +180,8 @@ for i = 1:length(SNR)
         
     end
     iterNum(i) = iter;
-    per(i) = PerNum/iter;
-    ber(i) = BerNum/2/K/iter;
+    per(i) = (PerNum1+PerNum2)/(2*iter);
+    ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_oddwrong(i) = ReSCL_oddWrong;
     rs_oddcorr(i) = ReSCL_oddCorrect;
     evencorr(i) = evenCorrect;

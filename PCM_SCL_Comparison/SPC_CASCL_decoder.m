@@ -53,6 +53,7 @@ for phi = 0 : N - 1
                 index_1 = lambda_offset(m);
                 for beta = 0 : index_1 - 1
                     x_tmp = C(beta + index_1, 2 * l_index - 1);
+                    %%%Here! Maybe the inf appear.
                     P(beta + index_1, l_index) = (1 - 2 * x_tmp) * llr(beta + 1) + llr(beta + 1 + index_1);
                 end
                 for i_layer = m - 2 : -1 : 0

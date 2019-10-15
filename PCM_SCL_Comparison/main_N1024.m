@@ -8,7 +8,7 @@ poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 8;   %SCL List
 K = 548; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = 0.5:0.5:3.5;
+SNR = 0.5:0.5:3;
 
 %Compute the parameters
 N = 2^n;
@@ -51,7 +51,7 @@ for i = 1:length(SNR)
     AllRight = 0;
     AllWrong = 0;
     
-    while true 
+    while iter<=10000 
         
         iter = iter + 1;
         % reset the frozen bits and mutual bits

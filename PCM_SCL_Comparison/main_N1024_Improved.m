@@ -8,7 +8,7 @@ poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 8;   %SCL List
 K = 548; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = 0.5:0.5:3.5;
+SNR = 0.5:0.5:3;
 
 %Compute the parameters
 N = 2^n;
@@ -45,9 +45,9 @@ for i = 1:length(SNR)
     %counter the number of Re-SC decoding
     % 以下参数用来记录每个SNR点，论文中提到的case1-case4发生次数
     ReSCL_oddWrong = 0;
-    ReSCL_evenWrong = 0;
     ReSCL_oddCorrect = 0;    %odd block have correct new rounds of SCL decoding
-    ReSCL_evenCorrect = 0;   %even block have correct new rounds of SCL decoding
+    oddCorrect = 0; %Counter the number of the block odd decode correctly in the first round of decoding.
+    evenCorrect = 0;%Counter the number of the block even decode correctly in the first round of decoding, when block odd is right
     AllRight = 0;
     AllWrong = 0;
     
@@ -102,6 +102,7 @@ for i = 1:length(SNR)
         if ~err1
             frozen_bits(MUUB) = 2;
             mutual_bits(MUUB) = decision_bits1(1:Kp);
+            oddCorrect = oddCorrect + 1;
         end
         [decision_bits2, err2] = CASCL_decoder(llr2, L, info_index, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec, mutual_bits);
         
@@ -123,16 +124,10 @@ for i = 1:length(SNR)
         
         % situation 2: polar1 right, polr2 wrong;
         %In this case, no need for new round of decoding therein.
-%         if ~err1 && err2
-%             ReSCL_evenWrong = ReSCL_evenWrong + 1;
-%             % modify polar1 frozen_index frozen_bits info_index
-%             frozen_bits(MUUB) = 2;
-%             mutual_bits(MUUB) = decision_bits1(1:Kp);
-%             [decision_bits2, ~] = CASCL_decoder(llr2, L, info_index, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec, mutual_bits);
-%             if sum(source_crc_bit2 ~= decision_bits2') == 0
-%                 ReSCL_evenCorrect = ReSCL_evenCorrect + 1;
-%             end
-%         end
+        if ~err1 && err2
+            evenCorrect = evenCorrect + 1;
+        end
+
         
         %situation 3: All wrong, we have no solution
         if err1 && err2
