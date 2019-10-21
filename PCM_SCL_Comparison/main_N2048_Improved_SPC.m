@@ -91,11 +91,8 @@ for i = 1:length(SNR)
         % bpsk modulation
         encode_sym = 1 - 2 * codeword;
         
-        %Puncture: Set the punctured symbols as 0.
-        encode_sym(MUUB, 2) = 0;
-        
         % add noise
-        receive_sample = encode_sym + sigma * randn(size(encode_sym)).*abs(encode_sym);
+        receive_sample = encode_sym + sigma * randn(size(encode_sym));
         
         %Compute the LLR; The LLR of the punctured bits should be set as 0.
         llr = 2*receive_sample/sigma^2;      
@@ -118,8 +115,6 @@ for i = 1:length(SNR)
         if ~err1
             llr(MUUB, 2) = init_lr_max * (1 - 2 * decision_bits(1,1:Kp));
             oddCorrect = oddCorrect + 1;
-        else
-            llr(MUUB, 2) = llr(MUUB, 1);
         end
         
         [esti_u, err2] = SPC_CASCL_decoder(llr(:,2), L, info_index, frozen_bits, Gaa, poly, lambda_offset, llr_layer_vec, bit_layer_vec);

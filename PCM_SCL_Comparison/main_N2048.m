@@ -8,7 +8,7 @@ poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 32;   %SCL List
 K = 1060; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = 0:0.2:2;
+SNR = 0.2:0.2:2;
 
 %Compute the parameters
 N = 2^n;
@@ -51,7 +51,7 @@ for i = 1:length(SNR)
     AllRight = 0;
     AllWrong = 0;
     
-    while true 
+    while true
         
         iter = iter + 1;
         % reset the frozen bits and mutual bits
@@ -98,7 +98,7 @@ for i = 1:length(SNR)
         if err1
             err1 = sum(crccheck_m(decision_bits1',poly));
         end
-                
+      
         if err2
             err2 = sum(crccheck_m(decision_bits2',poly));
         end
@@ -115,6 +115,8 @@ for i = 1:length(SNR)
             end
         end
         
+        % situation 2: polar1 right, polr2 wrong;
+        %In this case, no need for new round of decoding therein.
         if ~err1 && err2
             ReSCL_evenWrong = ReSCL_evenWrong + 1;
             % modify polar1 frozen_index frozen_bits info_index

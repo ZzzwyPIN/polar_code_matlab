@@ -6,13 +6,14 @@ n = 10;  % 比特位数
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 8;   %SCL List
-K = 548; %the number of information bits of the underlying blocks
+K = 528; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
+Q = 40;  %Pucntured Number
 SNR = 0.5:0.5:3;
 
 %Compute the parameters
 N = 2^n;
-R = (K-Ng-Kp/2)/N;
+R = (2*K-2*Ng-Kp)/(2*N-2*Q);
 snr = 10.^(SNR/10);
 esn0 = snr * R;
 k_f = N-K;% frozen_bits length
@@ -26,9 +27,12 @@ bit_layer_vec = get_bit_layer(N);
 load('Pe_N1024_snr2.mat');
 [~, I] = sort(P);
 pure_info_index = I(1:K-Kp-Ng);  % 挑选质量好的信道传输信息位
-MUUB = I(K-Kp+1:K);  % Bit channel of the most unreliable unfrozen bits
-crc_index = I(K-Kp-Ng+1:K-Kp); % Bit channel of the CRC bits.
-frozen_index = I(K+1:end);   % 传输冻结位的信道
+MUUB = I(K-Kp+1:K);              % Bit channel of the most unreliable unfrozen bits
+crc_index = I(K-Kp-Ng+1:K-Kp);   % Bit channel of the CRC bits.
+frozen_index = I(K+1:end);       % 传输冻结位的信道
+punc_index = I(end-Q+1:end);
+
+
 
 info_index = [MUUB pure_info_index crc_index];
 
@@ -85,9 +89,14 @@ for i = 1:length(SNR)
         % bpsk modulation
         encode_temp1 = 1 - 2 * encode_temp1;
         encode_temp2 = 1 - 2 * encode_temp2;
+        
+        %Puncture
+        encode_temp1(punc_index) = 0;
+        encode_temp2(punc_index) = 0;
+        
         % add noise
-        receive_sample1 = encode_temp1 + sigma * randn(size(encode_temp1));
-        receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2));
+        receive_sample1 = encode_temp1 + sigma * randn(size(encode_temp1)).*abs(encode_temp1);
+        receive_sample2 = encode_temp2 + sigma * randn(size(encode_temp2)).*abs(encode_temp2);
         
         llr1 = 2/sigma^2*receive_sample1;
         llr2 = 2/sigma^2*receive_sample2;

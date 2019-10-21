@@ -65,7 +65,7 @@ for i = 1:length(SNR)
     AllRight = 0;
     AllWrong = 0;
     
-    while iter<=10000 
+    while true
         
         iter = iter + 1;
         

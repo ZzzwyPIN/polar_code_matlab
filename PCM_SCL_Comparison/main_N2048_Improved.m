@@ -8,7 +8,7 @@ poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 32;   %SCL List
 K = 1060; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = 0:0.2:2;
+SNR = 0.2:0.2:2;
 
 %Compute the parameters
 N = 2^n;
@@ -47,7 +47,7 @@ for i = 1:length(SNR)
     ReSCL_oddWrong = 0;
     ReSCL_oddCorrect = 0;    %odd block have correct new rounds of SCL decoding
     oddCorrect = 0; %Counter the number of the block odd decode correctly in the first round of decoding.
-    evenCorrect = 0;%Counter the number of the block even decode correctly in the first round of decoding, when block odd is right.
+    evenCorrect = 0;%Counter the number of the block even decode correctly in the first round of decoding, when block odd is right
     AllRight = 0;
     AllWrong = 0;
     
@@ -127,16 +127,7 @@ for i = 1:length(SNR)
         if ~err1 && err2
             evenCorrect = evenCorrect + 1;
         end
-%         if ~err1 && err2
-%             ReSCL_evenWrong = ReSCL_evenWrong + 1;
-%             % modify polar1 frozen_index frozen_bits info_index
-%             frozen_bits(MUUB) = 2;
-%             mutual_bits(MUUB) = decision_bits1(1:Kp);
-%             [decision_bits2, ~] = CASCL_decoder(llr2, L, info_index, frozen_bits, poly, lambda_offset, llr_layer_vec, bit_layer_vec, mutual_bits);
-%             if sum(source_crc_bit2 ~= decision_bits2') == 0
-%                 ReSCL_evenCorrect = ReSCL_evenCorrect + 1;
-%             end
-%         end
+
         
         %situation 3: All wrong, we have no solution
         if err1 && err2
@@ -174,14 +165,14 @@ for i = 1:length(SNR)
     per(i) = (PerNum1+PerNum2)/(2*iter);
     ber(i) = (BerNum1+BerNum2)/(2*K-Kp)/iter;
     rs_oddwrong(i) = ReSCL_oddWrong;
+    rs_evenwrong(i) = ReSCL_evenWrong;
     rs_oddcorr(i) = ReSCL_oddCorrect;
-    evencorr(i) = evenCorrect;
-    oddcorr(i) = oddCorrect;
+    rs_evencorr(i) = ReSCL_evenCorrect;
     all_right(i) = AllRight;
     all_wrong(i) = AllWrong;
 end
 
 % record the results
-% path = '../results/';
-% filename = [path, 'PCM_SCL',num2str(L),'_N',num2str(N),'_R',num2str(R),'.mat'];
-% save(filename)
+path = '../results/';
+filename = [path, 'PCM_SCL',num2str(L),'_N',num2str(N),'_R',num2str(R),'.mat'];
+save(filename)
