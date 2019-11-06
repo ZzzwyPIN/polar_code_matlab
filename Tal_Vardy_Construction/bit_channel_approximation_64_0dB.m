@@ -46,7 +46,7 @@ end
 %yh: higher bound of y in a symbol
 if CHANNEL_TYPE == 0  
    %param
-   SNR = 3; % in dB
+   SNR = 4; % in dB
    snr = 10^(SNR/10);
    esn0 = snr * R;
    sigma = (2*esn0)^-0.5;

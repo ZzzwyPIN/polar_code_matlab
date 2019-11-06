@@ -1,5 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%
 %%
+clc
+clear
 load('PCM_SPS_Comparison.mat')
 figure
 semilogy(SNR, berPCM, 'k-*', SNR, berSPS, 'r-+');

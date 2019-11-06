@@ -5,10 +5,10 @@ clear
 n = 10;  % 比特位数
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
-L = 8;   %SCL List
+L = 2;   %SCL List
 K = 548; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = 0.5:0.5:3;
+SNR = [1 2 2.5 3 3.5 4];
 
 %Compute the parameters
 N = 2^n;
