@@ -8,7 +8,7 @@ poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
 L = 2;   %SCL List
 K = 548; %the number of information bits of the underlying blocks
 Kp = 40; %the number of mutual bits
-SNR = [1 2 2.5 3 3.5 4];
+SNR = [2 2.5 2.8 3 3.2 3.5];
 
 %Compute the parameters
 N = 2^n;

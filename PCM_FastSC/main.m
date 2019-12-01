@@ -5,9 +5,9 @@ clear
 n = 10;  % 比特位数
 Ng = 16;
 poly = [1 0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 1];
-K = 565; %the number of information bits of the underlying blocks
-Kp = 74; %the number of mutual bits
-SNR = [1 2 2.5 3 3.5];
+K = 378; %the number of information bits of the underlying blocks
+Kp = 50; %the number of mutual bits
+SNR = [2 2.5 2.8 3 3.2 3.5];
 
 %Compute the parameters
 N = 2^n;

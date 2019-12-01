@@ -3,8 +3,8 @@ clear
 
 % 基本参数设置
 n = 10;  % 比特位数
-R = 0.5;    % 码率
-SNR = [1 2 3 3.5 4];
+R = 0.33;    % 码率
+SNR = [2 2.5 2.8 3 3.2 3.5];
 % 参数计算
 snr = 10.^(SNR/10);
 esn0 = snr * R;
@@ -37,9 +37,6 @@ for i = 1:length(SNR)
     PerNum = 0;
     BerNum = 0;
     iter = 0;
-    %counter the number of Re-SC decoding
-    % 以下参数用来记录每个SNR点，论文中提到的case1-case4发生次数
- 
     while true 
         iter = iter + 1;
         if mod(iter,1000) == 0
