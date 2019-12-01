@@ -1,8 +1,6 @@
-function [bler, ber] = simulation(N, M, Kp, max_runs, max_err, P, resolution, ebno_vec, list_size_vec,Ng,poly)
+function [bler, ber] = simulation(N, K, max_runs, max_err, P, resolution, ebno_vec, list_size_vec, Ng, poly)
 %effective rate of concatenated codes
-R = (M-Ng-Kp/2)/N;
-K = M-Kp/2;
-
+R = (K-Ng)/N;
 %codes parameters to avoid redundant calcularions
 lambda_offset = 2.^(0 : log2(N));
 llr_layer_vec = get_llr_layer(N);
